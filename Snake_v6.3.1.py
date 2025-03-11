@@ -94,7 +94,7 @@ class SnakeAI:
 
             distance_to_wall = min(new_x - GAME_AREA_X, GAME_AREA_X + GAME_AREA_WIDTH - new_x,
                                    new_y - GAME_AREA_Y, GAME_AREA_Y + GAME_AREA_HEIGHT - new_y)
-            wall_penalty = self.brain[5] * (10 / (distance_to_wall + 1))
+            wall_penalty = self.brain[5] * (5 / (distance_to_wall + 1))
             exploration_bonus = self.brain[6] * random.uniform(0, 2)
 
             total_score = (
@@ -137,7 +137,7 @@ class SnakeAI:
 
         self.score += 1 + (self.length * 0.5)
 
-        if time.time() - self.start_time > 20 and self.length < 10:
+        if time.time() - self.start_time > 10 and self.length < 20:
             self.alive = False
 
 def draw_game():
@@ -147,7 +147,7 @@ def draw_game():
     best_score = max((snake.score for snake in snakes if snake.alive), default=0)
     best_length = max((snake.length for snake in snakes if snake.alive), default=0)
     elapsed_time = round(time.time() - generation_start_time, 2)
-
+    
     score_text = font.render(f"Best Score: {best_score}, Length: {best_length}, Time: {elapsed_time}s", True, WHITE)
     screen.blit(score_text, (20, 10))
 
@@ -156,7 +156,7 @@ def draw_game():
             for segment in snake.snake:
                 pygame.draw.rect(screen, GREEN, (segment[0], segment[1], CELL_SIZE, CELL_SIZE))
             pygame.draw.rect(screen, RED, (snake.food[0], snake.food[1], CELL_SIZE, CELL_SIZE))
-
+    
     pygame.display.flip()
     clock.tick(FPS)
 
@@ -177,9 +177,20 @@ def run_generation():
 
         for snake in alive_snakes:
             snake.move()
-        
+
         draw_game()
 
-snakes = [SnakeAI() for _ in range(50)]
-for generation in range(10):
+    # Mutation & Selection
+    snakes.sort(key=lambda s: s.score, reverse=True)
+    top_performers = snakes[:10]
+    snakes = [SnakeAI(brain=top_performers[random.randint(0, len(top_performers) - 1)].brain + np.random.randn(7) * 0.1) for _ in range(100)]
+
+snakes = [SnakeAI() for _ in range(100)]
+
+for generation in range(100):
+    best_score = max((snake.score for snake in snakes if snake.alive), default=0)
+    best_length = max((snake.length for snake in snakes if snake.alive), default=0)
+    elapsed_time = round(time.time() - generation_start_time, 2)
+    
+    print(f"Generation {generation} - Best Score: {best_score}, Length: {best_length}, Time: {elapsed_time}s")
     run_generation()
