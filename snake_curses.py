@@ -92,6 +92,7 @@ class SnakeAI:
         self.food = create_food(self)
         self.score = 0
         self.fitness_score = 0
+        self.repitions = 0
 
         # Brain ---> List of weights for move evaluation (GENOME)
         self.brain = brain if brain else [random.uniform(0, 1) for _ in range(7)]
@@ -266,16 +267,30 @@ class SnakeAI:
         # Render Move and Game Logic
         head_y, head_x = self.positions[0]
         new_head = (head_y + chosen_direction[0], head_x + chosen_direction[1])
+
+        # Loop Detection - Count occurrences in last 30 moves
+        loop_threshold = 30  # Maximum allowed repetitions before considering it a loop
+        recent_moves = self.prev_positions # Check last 30 moves
+        repeat_count = recent_moves.count(new_head)  # Count how often this position appears
+        self.repitions = repeat_count
+
+        # Check for Loops
+        if repeat_count >= loop_threshold:
+            return "loop"  # Treat excessive repetition as a failure condition
+        
+        # Chekc if Fitness Score gets too low
+        if self.fitness_score < -300:
+            return "starved"
         
         # Check for collisions
         if (new_head in self.positions) or (new_head[0] == 0 or new_head[0] == HEIGHT - 1 or new_head[1] == 0 or new_head[1] == WIDTH - 1):
             return "collision"
         
-        # Snake had not Collided, Append move to previous moves
+        # Snake has not Collided or looped, Append move to previous moves
         self.prev_positions.append(new_head)
 
-        # Ensure Prev moves is not too long
-        if len(self.prev_positions) > 50:
+        # Store 100 last moves
+        if len(self.prev_positions) > 500:
             self.prev_positions.pop(0)
 
         self.positions.insert(0, new_head)
@@ -331,13 +346,13 @@ def draw_board(stdscr, snake: Snake):
 
 
 # Display the Board in the Terminal via Curses (For AI)
-def draw_board_AI(stdscr, snake: SnakeAI):
+def draw_board_AI(stdscr, snake: SnakeAI, candidate_index: int):
     global GAME_SPEED
     stdscr.clear()  # Clear screen before redrawing
     
     # Draw top bar with game info
     stdscr.addstr(0, 0, f"Score: {snake.score}")
-    stdscr.addstr(1, 0, f"Moves Made: {snake.moves_made}")
+    stdscr.addstr(1, 0, f"Moves Made: {snake.moves_made}, Repitions: {snake.repitions}")
     stdscr.addstr(2, 0, f"Length: {snake.length}")
     stdscr.addstr(4, 0, f"Increase and decrease game speed with 'w' and 's'")
     stdscr.addstr(5, 0, f"Current Game Speed: {GAME_SPEED}")
@@ -362,7 +377,7 @@ def draw_board_AI(stdscr, snake: SnakeAI):
         # Write extra text to the right of the game area
         info_offset = WIDTH + 2  # Set offset (2 spaces after the border)
         if y == 1:  # Display text at a specific row (adjust as needed)
-            stdscr.addstr(y + TOP_BAR, info_offset, f"Candidate 1")
+            stdscr.addstr(y + TOP_BAR, info_offset, f"Candidate {candidate_index + 1}/{len(CANDIDATES)}")
         elif y == 2:
             stdscr.addstr(y + TOP_BAR, info_offset, f"Collision Weight: {snake.brain[0]}")
         elif y == 3:
@@ -685,28 +700,79 @@ def run_game(stdscr):
 
         # Training Initialisation
         if game_state == "Initialization":
-            initialise(stdscr)
+
+            # Start Init process, get output
+            status = initialise(stdscr)
+
+            # Process initialsation ouput
+            if status == "MENU":
+                game_state = "Menu"
+
+            elif status == "RESET":
+                game_state = "Initialization"
+
+            elif status == "INIT_COMPLETE":
+                game_state = "Training"
 
         # Training Loop
         if game_state == "Training":
 
-            # Apply AI Direction Evaluation for move
-            snakeAI.move()
+            # Generation Scores
+            gen_scores = []
+            fail_condition = []
 
-            snake_status = snakeAI.move()
-            draw_board_AI(stdscr, snakeAI)
+            # TODO: Save Outcome to CSV
 
-            key = stdscr.getch()
-            if key == ord("w"):
-                if GAME_SPEED > 0.001:
-                    GAME_SPEED -= 0.001
-            elif key == ord("s"):
-                GAME_SPEED += 0.001  # Increase speed by 10% (slow down game)
+            # Let Each Candidate Play
+            index = 0
+            for candidate_brain in CANDIDATES:
 
-            time.sleep(GAME_SPEED)  # Game speed
+                # Init Snake with according brain
+                snakeAI = SnakeAI(None, candidate_brain)
 
-            if snake_status == "collision":
-                game_state = "Game Over"
+                # Apply AI Direction Evaluation for move
+                snake_status = "safe"
+
+                # Let Snake Play until Collision or Loop
+                while snake_status == "safe":
+     
+                    snake_status = snakeAI.move()
+                    draw_board_AI(stdscr, snakeAI, index)
+
+                    # Get Key Strokes
+                    key = stdscr.getch()
+                    if key == ord("w"):
+                        if GAME_SPEED > 0.001:
+                            GAME_SPEED -= 0.001
+                    elif key == ord("s"):
+                        GAME_SPEED += 0.001  # Increase speed by 10% (slow down game)
+
+                    time.sleep(GAME_SPEED)  # Game speed
+
+
+                    # FAIL CONDITIONS - COLLSION; LOOP; STARVATION
+                    # Check for Collision or Loop
+                    if snake_status == "collision" or snake_status == "loop" or snake_status == "starved":
+
+                        # Show Candidate Stats
+                        stdscr.clear()
+                        stdscr.addstr(1,1,f"Candidate {CANDIDATES.index(candidate_brain)} statistics", curses.A_BOLD)
+                        stdscr.addstr(2,1,f"Fail Condition: {snake_status}")
+                        stdscr.addstr(3,1,f"Final Score: {snakeAI.fitness_score}")
+
+                        # Append Score and Fail Condition to List
+                        gen_scores.append(snakeAI.fitness_score)
+                        fail_condition.append(snake_status)
+
+                        animate_text_normal(stdscr, 5, 1, "Starting next Candidate...")
+                        time.sleep(1)
+
+                    
+                # Increment Index
+                index += 1
+
+
+
 
 
         # TODO: Playground Loop
