@@ -8,7 +8,7 @@ import time
 
 HEIGHT = 30
 WIDTH = 60
-TOP_BAR = 3  # Number of extra lines above the playing field
+TOP_BAR = 6  # Number of extra lines above the playing field
 SNAKE_CHAR = "O"
 FOOD_CHAR = "X"
 EMPTY_CHAR = " "
@@ -19,6 +19,7 @@ DOWN = (1, 0)
 LEFT = (0, -1)
 RIGHT = (0, 1)
 DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
+GAME_SPEED = 0.001
 
 def create_food(snake):  # Ensure food does not spawn in the snake
     while True:
@@ -69,6 +70,7 @@ class SnakeAI:
         self.current_direction = None # Track current movement
         self.food = create_food(self)
         self.score = 0
+        self.fitness_score = 0
 
         # Brain ---> List of weights for move evaluation (GENOME)
         self.brain = brain if brain else [random.uniform(0, 1) for _ in range(7)]
@@ -195,7 +197,17 @@ class SnakeAI:
 
         return score
     
-    # TODO: ADD FITNESS FUNCTION (Metric to judge how well the snake performed)
+    # Fitness Function Score
+    def fitness_function(self):
+
+        # Score to judge the performance of the candidate
+        # Take into consideration Food Eaten and Time Survived, but also time taken for each score on average
+        # Reward High Scores and longer time survived
+        # Penalize excessive moves per score
+        # Score squared - average moves per score
+
+        fitness = (self.score*self.score) - (self.moves_made/(self.score + 1))
+        return fitness
 
 
     # Apply AI Logic in Moves
@@ -248,11 +260,15 @@ class SnakeAI:
 
         # Count Move
         self.moves_made += 1
+
+        # Calculate Fitness
+        self.fitness_score = self.fitness_function()
     
         # Check if snake eats food
         if new_head == self.food:
             self.food = create_food(self)
             self.score += 1
+            self.length += 1 # Increment Length
         else:
             self.positions.pop()  # Remove tail
         
@@ -265,8 +281,8 @@ def draw_board(stdscr, snake: Snake):
     
     # Draw top bar with game info
     stdscr.addstr(0, 0, f"Score: {snake.score}")
-    stdscr.addstr(1, 0, "Press 'q' to quit")
-    stdscr.addstr(2, 0, "=========================")
+    stdscr.addstr(1, 0, "Control with 'WASD', Press 'q' to quit")
+    stdscr.addstr(5, 0, "Your Fitness Score:")
     
     # Draw top border
     stdscr.addstr(TOP_BAR, 0, "#" * WIDTH)
@@ -292,13 +308,16 @@ def draw_board(stdscr, snake: Snake):
 
 # Display the Board in the Terminal via Curses (For AI)
 def draw_board_AI(stdscr, snake: SnakeAI):
+    global GAME_SPEED
     stdscr.clear()  # Clear screen before redrawing
     
     # Draw top bar with game info
-    stdscr.addstr(0, 0, f"X pos: {snake.food_distance_x(snake.positions)}, Y pos: {snake.food_distance_y(snake.positions)}")
-    stdscr.addstr(1, 0, f"Moved Made: {snake.moves_made}")
-    stdscr.addstr(2, 0, f"Brain: {snake.brain}")
-    stdscr.addstr(3, 0, "=========================")
+    stdscr.addstr(0, 0, f"Score: {snake.score}")
+    stdscr.addstr(1, 0, f"Moves Made: {snake.moves_made}")
+    stdscr.addstr(2, 0, f"Length: {snake.length}")
+    stdscr.addstr(4, 0, f"Increase and decrease game speed with 'w' and 's'")
+    stdscr.addstr(5, 0, f"Current Game Speed: {GAME_SPEED}")
+    stdscr.addstr(6, 0, "    ")
     
     # Draw top border
     stdscr.addstr(TOP_BAR, 0, "#" * WIDTH)
@@ -316,12 +335,36 @@ def draw_board_AI(stdscr, snake: SnakeAI):
         row.append("#")  # Right border
         stdscr.addstr(y + TOP_BAR, 0, "".join(row))  # Print row at correct offset
 
+        # Write extra text to the right of the game area
+        info_offset = WIDTH + 2  # Set offset (2 spaces after the border)
+        if y == 1:  # Display text at a specific row (adjust as needed)
+            stdscr.addstr(y + TOP_BAR, info_offset, f"Candidate 1")
+        elif y == 2:
+            stdscr.addstr(y + TOP_BAR, info_offset, f"Collision Weight: {snake.brain[0]}")
+        elif y == 3:
+            stdscr.addstr(y + TOP_BAR, info_offset, f"Food X Weight: {snake.brain[1]}")
+        elif y == 4:
+            stdscr.addstr(y + TOP_BAR, info_offset, f"Food Y Weight: {snake.brain[2]}")
+        elif y == 5:
+            stdscr.addstr(y + TOP_BAR, info_offset, f"Tail X Weight: {snake.brain[3]}")
+        elif y == 6:
+            stdscr.addstr(y + TOP_BAR, info_offset, f"Tail Y Weight: {snake.brain[4]}")
+        elif y == 7:
+            stdscr.addstr(y + TOP_BAR, info_offset, f"Loop Weight: {snake.brain[5]}")
+        elif y == 8:
+            stdscr.addstr(y + TOP_BAR, info_offset, f"Food Collection Weight: {snake.brain[6]}")
+        elif y == 11:
+            stdscr.addstr(y + TOP_BAR, info_offset, f"Fitness Score: {snake.fitness_score}")
+        
+          
+
     # Draw bottom border
     stdscr.addstr(HEIGHT - 1 + TOP_BAR, 0, "#" * WIDTH)
 
     stdscr.refresh()  # Refresh screen
 
 def run_game(stdscr):
+    global GAME_SPEED
 
     # Track Game State
     active = True
@@ -369,7 +412,15 @@ def run_game(stdscr):
 
             snake_status = snakeAI.move()
             draw_board_AI(stdscr, snakeAI)
-            time.sleep(0.01)  # Game speed
+
+            key = stdscr.getch()
+            if key == ord("w"):
+                if GAME_SPEED > 0.001:
+                    GAME_SPEED -= 0.001
+            elif key == ord("s"):
+                GAME_SPEED += 0.001  # Increase speed by 10% (slow down game)
+
+            time.sleep(GAME_SPEED)  # Game speed
 
             if snake_status == "collision":
                 game_state = "Game Over"
