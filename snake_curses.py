@@ -448,8 +448,14 @@ def animate_text_normal(stdscr, y_offset, x_offset, string, delay=0.01):
         time.sleep(delay)
 
 # Function to get numeric input (Windows and Mac Compat)
+import curses
+import time
+
 def get_numeric_input(stdscr, prompt, y, x, min_value=1, max_value=1000):
-   
+    """
+    Handles numeric input safely across Windows and macOS/Linux.
+    Fixes issue where curses.getch() returns non-ASCII values.
+    """
     curses.echo()  # Enable input visibility
     user_input = ""  # Store user input as string
 
@@ -468,10 +474,11 @@ def get_numeric_input(stdscr, prompt, y, x, min_value=1, max_value=1000):
                 if key in [curses.KEY_ENTER, 10, 13]:  # Handle Enter key
                     break
                 elif key in [curses.KEY_BACKSPACE, 127, 8]:  # Handle Backspace
-                    user_input = user_input[:-1]
-                    stdscr.addstr(y, x + len(prompt), " " * (len(user_input) + 1))  # Clear
-                    stdscr.move(y, x + len(prompt) + len(user_input))
-                elif chr(key).isdigit():  # Only accept numbers
+                    if user_input:
+                        user_input = user_input[:-1]
+                        stdscr.addstr(y, x + len(prompt), " " * (len(user_input) + 1))  # Clear text
+                        stdscr.move(y, x + len(prompt) + len(user_input))
+                elif 48 <= key <= 57:  # Check if it's a valid ASCII number (0-9)
                     user_input += chr(key)
                     stdscr.addstr(y, x + len(prompt), user_input)
 
@@ -746,7 +753,7 @@ def run_game(stdscr):
 
             # TODO: Save Outcome to CSV
 
-            # Let Each Candidate Play
+            # Let Each Candidate Play (Training Loop)
             index = 0
             for candidate_brain in CANDIDATES:
 
@@ -794,11 +801,14 @@ def run_game(stdscr):
                 # Increment Index
                 index += 1
 
+            # Generation Recap 
 
+            # Cross Multiplication/Breeding/Survival of the Fittest/Mutation
 
 
 
         # TODO: Playground Loop
+        # TODO: Load CSV
 
     
         if game_state == "Game Over":
