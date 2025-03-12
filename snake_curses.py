@@ -61,8 +61,8 @@ class Snake:
 class SnakeAI:
 
     # Constructor
-    def __init__(self, positions=[(HEIGHT // 2, WIDTH // 2)], brain=[random.randint(0, 1) for _ in range(7)]): # Default Position to Middle
-        self.positions = positions # All positions of the snake - 2 Dimensional List [[Y,X]]
+    def __init__(self, positions=None, brain=None): # Default Position to Middle
+        self.positions = positions if positions else [(HEIGHT // 2, WIDTH // 2)] # All positions of the snake - 2 Dimensional List [[Y,X]]
         self.prev_positions = [] # Track 20 last head positions (init empty)
         self.length = len(self.positions) # Length of the Current Snake
         self.moves_made = 0 # Track moves made by snake during game
@@ -71,7 +71,8 @@ class SnakeAI:
         self.score = 0
 
         # Brain ---> List of weights for move evaluation (GENOME)
-        self.brain = brain
+        self.brain = brain if brain else [random.uniform(0, 1) for _ in range(7)]
+
 
     # STATE SPACE IDENTIFICATION FUNCTIONS (for move evaluation)
 
@@ -212,7 +213,9 @@ class SnakeAI:
 
         # Calculate Score for all Valid directions
         for direction in valid_directions: 
-            direction_score = self.eval_position_lookahead(direction, steps=5)
+            direction_score = self.eval_position_lookahead(direction, steps=6) # 5/6 Steps for best Application Performance (7 Steps and above is CPU intensive)
+            # Consider: For 7 Steps 3^7 Possible positions must be scored...
+
             direction_scores.append(direction_score)
 
         # Get Index of Max score
@@ -293,8 +296,9 @@ def draw_board_AI(stdscr, snake: SnakeAI):
     
     # Draw top bar with game info
     stdscr.addstr(0, 0, f"X pos: {snake.food_distance_x(snake.positions)}, Y pos: {snake.food_distance_y(snake.positions)}")
-    stdscr.addstr(1, 0, f"Moved Made: {snake.moves_made}, previous moves: {snake.prev_positions}")
-    stdscr.addstr(2, 0, "=========================")
+    stdscr.addstr(1, 0, f"Moved Made: {snake.moves_made}")
+    stdscr.addstr(2, 0, f"Brain: {snake.brain}")
+    stdscr.addstr(3, 0, "=========================")
     
     # Draw top border
     stdscr.addstr(TOP_BAR, 0, "#" * WIDTH)
@@ -388,9 +392,10 @@ def run_game(stdscr):
             # Catch Key Strokes
             key = stdscr.getch()
             if key == ord("r"):
+                snakeAI = None
                 snakeAI = SnakeAI()
                 game_state = prev_game_state
-                continue
+                stdscr.clear()
 
             elif key == ord("q"):
                 break
