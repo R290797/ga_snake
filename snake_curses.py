@@ -3,6 +3,8 @@
 # Bias towards directions coming first in the array, since max index that appears first ist taken
 # curses-windows for windows
 
+# Fail Conditions --> very Interesting
+
 import curses
 import random
 import time
@@ -274,6 +276,9 @@ class SnakeAI:
         repeat_count = recent_moves.count(new_head)  # Count how often this position appears
         self.repitions = repeat_count
 
+        # FAIL CONDITIONS
+        #________________
+
         # Check for Loops
         if repeat_count >= loop_threshold:
             return "loop"  # Treat excessive repetition as a failure condition
@@ -442,18 +447,37 @@ def animate_text_normal(stdscr, y_offset, x_offset, string, delay=0.01):
         stdscr.refresh()
         time.sleep(delay)
 
-# Function to get numeric input
+# Function to get numeric input (Windows and Mac Compat)
 def get_numeric_input(stdscr, prompt, y, x, min_value=1, max_value=1000):
-
+   
     curses.echo()  # Enable input visibility
+    user_input = ""  # Store user input as string
+
     while True:
         stdscr.addstr(y, x, prompt)  
         stdscr.refresh()
         
         try:
             stdscr.move(y, x + len(prompt))  # Move cursor to input area
-            user_input = stdscr.getstr().decode("utf-8").strip()
             
+            # Fix: Read key-by-key instead of getstr() to avoid Windows issues
+            user_input = ""
+            while True:
+                key = stdscr.getch()
+                
+                if key in [curses.KEY_ENTER, 10, 13]:  # Handle Enter key
+                    break
+                elif key in [curses.KEY_BACKSPACE, 127, 8]:  # Handle Backspace
+                    user_input = user_input[:-1]
+                    stdscr.addstr(y, x + len(prompt), " " * (len(user_input) + 1))  # Clear
+                    stdscr.move(y, x + len(prompt) + len(user_input))
+                elif chr(key).isdigit():  # Only accept numbers
+                    user_input += chr(key)
+                    stdscr.addstr(y, x + len(prompt), user_input)
+
+                stdscr.refresh()
+
+            # Convert input to integer and validate range
             if user_input.isdigit():
                 num = int(user_input)
                 if min_value <= num <= max_value:
@@ -462,12 +486,16 @@ def get_numeric_input(stdscr, prompt, y, x, min_value=1, max_value=1000):
                     stdscr.addstr(y+1, x, f"Enter a number between {min_value} and {max_value}.", curses.A_BOLD)
             else:
                 stdscr.addstr(y+1, x, "Invalid input! Please enter a number.", curses.A_BOLD)
+
             stdscr.refresh()
             time.sleep(1)  # Show error for a second
             stdscr.move(y, x)  # Move cursor back
             stdscr.clrtoeol()  # Clear invalid input
-        except:
-            pass
+
+        except Exception as e:
+            stdscr.addstr(y+2, x, f"Error: {str(e)}", curses.A_BOLD)
+            stdscr.refresh()
+            time.sleep(1)
 
 
 
@@ -629,11 +657,6 @@ def initialise(stdscr):
     return "INIT_COMPLETE"
 
 
-
-
-
-
-
     
 def run_game(stdscr):
     global GAME_SPEED
@@ -756,7 +779,7 @@ def run_game(stdscr):
 
                         # Show Candidate Stats
                         stdscr.clear()
-                        stdscr.addstr(1,1,f"Candidate {CANDIDATES.index(candidate_brain)} statistics", curses.A_BOLD)
+                        stdscr.addstr(1,1,f"Candidate {CANDIDATES.index(candidate_brain) + 1} statistics", curses.A_BOLD)
                         stdscr.addstr(2,1,f"Fail Condition: {snake_status}")
                         stdscr.addstr(3,1,f"Final Score: {snakeAI.fitness_score}")
 
