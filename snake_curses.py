@@ -5,6 +5,11 @@
 
 # Fail Conditions --> very Interesting
 
+
+#TODO - Saving to CSV, Loading in Playground
+#TODO - Generation Metrics, Tracking Performance
+#TODO - WINDOWS COMPAT
+
 import curses
 import random
 import time
@@ -26,6 +31,7 @@ GAME_SPEED = 0.001
 MENU_OPEN = False
 CANDIDATES = [] # Global Variables that holds all candidates
 GENERATIONS = 0 # Global Variable which tracks total Generations
+CURRENT_GENERATION = 0
 
 def create_food(snake):  # Ensure food does not spawn in the snake
     while True:
@@ -451,6 +457,9 @@ def animate_text_normal(stdscr, y_offset, x_offset, string, delay=0.01):
 import curses
 import time
 
+import curses
+import time
+
 def get_numeric_input(stdscr, prompt, y, x, min_value=1, max_value=1000):
     """
     Handles numeric input safely across Windows and macOS/Linux.
@@ -563,6 +572,8 @@ def draw_menu(stdscr):
 # Training Initilisation Process
 def initialise(stdscr):
     global CANDIDATES 
+    global CURRENT_GENERATION
+    global GENERATIONS
 
     # TODO: Load Candidates from CSV
 
@@ -801,9 +812,11 @@ def run_game(stdscr):
                 # Increment Index
                 index += 1
 
-            # Generation Recap 
+            # Display Generation Recap 
 
             # Cross Multiplication/Breeding/Survival of the Fittest/Mutation
+
+            # Continue Training
 
 
 
@@ -842,5 +855,4 @@ def run_game(stdscr):
 
             
 
-if __name__ == "__main__":
-    curses.wrapper(run_game)
+curses.wrapper(run_game)
