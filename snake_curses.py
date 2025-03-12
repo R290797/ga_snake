@@ -38,6 +38,19 @@ class Snake:
         self.direction = RIGHT
         self.food = create_food(self)
         self.score = 0
+        self.length = 1
+        self.moves_made = 0
+
+    def fitness_function(self):
+
+        # Score to judge the performance of the candidate
+        # Take into consideration Food Eaten and Time Survived, but also time taken for each score on average
+        # Reward High Scores and longer time survived
+        # Penalize excessive moves per score
+        # Score squared - average moves per score
+
+        fitness = (self.score*self.score) - (self.moves_made/(self.score + 1))
+        return fitness
 
     # Move Function
     def move(self):
@@ -50,6 +63,10 @@ class Snake:
             return "collision"
         
         self.positions.insert(0, new_head)
+
+        # No Collision have Occured
+        self.moves_made += 1
+        self.length += 1
         
         # Check if snake eats food
         if new_head == self.food:
@@ -79,6 +96,7 @@ class SnakeAI:
 
 
     # STATE SPACE IDENTIFICATION FUNCTIONS (for move evaluation)
+    #___________________________________________________________
 
     # Check Collision
     def check_collision(self, positions):
@@ -282,9 +300,11 @@ def draw_board(stdscr, snake: Snake):
     stdscr.clear()  # Clear screen before redrawing
     
     # Draw top bar with game info
-    stdscr.addstr(0, 0, f"Score: {snake.score}")
-    stdscr.addstr(1, 0, "Control with 'WASD', Press 'q' to quit")
-    stdscr.addstr(5, 0, "Your Fitness Score:")
+    stdscr.addstr(0, 0, "Human Snake Control", curses.A_BOLD)
+    stdscr.addstr(2, 0, "Control with 'WASD', Press 'q' to quit")
+    stdscr.addstr(3, 0, f"Score: {snake.score}")
+    stdscr.addstr(4, 0, f"Moves Made: {snake.moves_made}") 
+    stdscr.addstr(5, 0, f"Fitness Score: {snake.fitness_function()}")
     
     # Draw top border
     stdscr.addstr(TOP_BAR, 0, "#" * WIDTH)
@@ -421,13 +441,13 @@ def draw_menu(stdscr):
     if not MENU_OPEN:
 
         # Animate Menu Text
-        animate_text(stdscr, 11, 1, subtitle_1, 0.01)
-        animate_text(stdscr, 12, 1, subtitle_2, 0.01)
+        animate_text(stdscr, 11, 1, subtitle_1, 0.01,)
+        animate_text(stdscr, 12, 1, subtitle_2, 0.01,)
         animate_text(stdscr, 14, 1, menu_title, 0.02)
-        animate_text(stdscr, 15, 1, menu_option_1, 0.01)
-        animate_text(stdscr, 16, 1, menu_option_2, 0.01)
-        animate_text(stdscr, 17, 1, menu_option_3, 0.01)
-        animate_text(stdscr, 18, 1, menu_option_4, 0.01)
+        animate_text(stdscr, 15, 1, menu_option_1, 0.01,)
+        animate_text(stdscr, 16, 1, menu_option_2, 0.01,)
+        animate_text(stdscr, 17, 1, menu_option_3, 0.01,)
+        animate_text(stdscr, 18, 1, menu_option_4, 0.01,)
 
         # Change Menu State to Open
         MENU_OPEN = True
@@ -435,13 +455,13 @@ def draw_menu(stdscr):
     if MENU_OPEN:
 
         # Add Text
-        stdscr.addstr(11, 1, subtitle_1)
-        stdscr.addstr(12, 1, subtitle_2)
-        stdscr.addstr(14, 1, menu_title)    
-        stdscr.addstr(15, 1, menu_option_1)
-        stdscr.addstr(16, 1, menu_option_2)
-        stdscr.addstr(17, 1, menu_option_3)
-        stdscr.addstr(18, 1, menu_option_4)
+        stdscr.addstr(11, 1, subtitle_1, curses.A_BOLD)
+        stdscr.addstr(12, 1, subtitle_2, curses.A_BOLD)
+        stdscr.addstr(14, 1, menu_title, curses.A_BOLD)    
+        stdscr.addstr(15, 1, menu_option_1, curses.A_BOLD)
+        stdscr.addstr(16, 1, menu_option_2, curses.A_BOLD)
+        stdscr.addstr(17, 1, menu_option_3, curses.A_BOLD)
+        stdscr.addstr(18, 1, menu_option_4, curses.A_BOLD)
 
         # Blink Text
         stdscr.addstr(20, 1, "PRESS AN OPTION TO CONTINUE", curses.A_BOLD)
@@ -459,8 +479,7 @@ def run_game(stdscr):
     # Track Game State
     active = True
     game_state = "Menu"
-    prev_game_state = "Menu" # Save Previous Game State that was not "Menu"
-    menu_open = False
+    prev_game_state = None
 
     curses.curs_set(0)  # Hide cursor
     stdscr.nodelay(1)  # Non-blocking input
@@ -476,11 +495,19 @@ def run_game(stdscr):
             
             draw_menu(stdscr)
             key = stdscr.getch()
+
+            # Catch Keytrokes
             if key == ord("1"):
                 snake = Snake()
                 game_state = "Running"
                 prev_game_state = "Running"
                 stdscr.refresh()
+
+            elif key == ord("q"):
+                stdscr.clear()
+                animate_text(stdscr, 1, 1, "Goodbye!", 0.1)
+                time.sleep(3)
+                break
     
 
         # Normal Snake (Playing the Game Manually) - Catch Key Strokes
@@ -528,15 +555,16 @@ def run_game(stdscr):
                 game_state = "Game Over"
 
 
-        # Playground Loop
+        # TODO: Playground Loop
 
     
         if game_state == "Game Over":
 
             # Game Over Screen
             stdscr.clear()
-            stdscr.addstr(1, 0, "Game Over", curses.A_BOLD)
-            stdscr.addstr(2, 0, 'Press "r" to try again')
+            stdscr.addstr(0, 0, "Game Over", curses.A_BOLD)
+            stdscr.addstr(1, 0, 'Press "r" to try again')
+            stdscr.addstr(2, 0, 'Press "m" to return to menu')
             stdscr.addstr(3, 0, 'Press "q" to quit')
 
             # Refresh Screen
@@ -545,10 +573,16 @@ def run_game(stdscr):
             # Catch Key Strokes
             key = stdscr.getch()
             if key == ord("r"):
-                snakeAI = None
+
+                snake = Snake()
                 snakeAI = SnakeAI()
-                game_state = prev_game_state
+                game_state = prev_game_state # Set Game to Previous Game State (Before Game Over)
                 stdscr.clear()
+
+            elif key == ord("m"):
+                game_state = "Menu"
+                stdscr.clear()
+
 
             elif key == ord("q"):
                 break
