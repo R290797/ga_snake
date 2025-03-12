@@ -61,12 +61,12 @@ class Snake:
 class SnakeAI:
 
     # Constructor
-    def __init__(self, positions=[(HEIGHT // 2, WIDTH // 2)], brain=[random.randint(-1, 1) for _ in range(7)]): # Default Position to Middle
+    def __init__(self, positions=[(HEIGHT // 2, WIDTH // 2)], brain=[random.randint(0, 1) for _ in range(7)]): # Default Position to Middle
         self.positions = positions # All positions of the snake - 2 Dimensional List [[Y,X]]
         self.prev_positions = [] # Track 20 last head positions (init empty)
         self.length = len(self.positions) # Length of the Current Snake
         self.moves_made = 0 # Track moves made by snake during game
-        self.direction = RIGHT
+        self.current_direction = None # Track current movement
         self.food = create_food(self)
         self.score = 0
 
@@ -143,13 +143,13 @@ class SnakeAI:
 
         # Check Collision 
         if self.check_collision(current_snake):
-            return self.brain[0] * -15 # Penalize Collision (with weight)
+            return self.brain[0] * -20 # Penalize Collision (with weight)
         
         # If no Collision, calculate other parameters (with weights)
-        food_x  = self.brain[1] * self.food_distance_x(current_snake)
-        food_y = self.brain[2] * self.food_distance_y(current_snake)
-        tail_x = self.brain[3] * self.tail_distance_x(current_snake)
-        tail_y = self.brain[4] * self.tail_distance_y(current_snake)
+        food_x  = self.brain[1] * -self.food_distance_x(current_snake)
+        food_y = self.brain[2] * -self.food_distance_y(current_snake)
+        tail_x = self.brain[3] * -self.tail_distance_x(current_snake)
+        tail_y = self.brain[4] * -self.tail_distance_y(current_snake)
 
         # Check if Looping
         if self.is_looping(current_snake):
@@ -157,7 +157,7 @@ class SnakeAI:
 
         # Check if Food
         if self.check_food(current_snake):
-            score += self.brain[6] * 20 # Reward food
+            score += self.brain[6] * 100 # Reward food
 
         # Calculate position score
         score += food_x + food_y + tail_x + tail_y
@@ -204,18 +204,28 @@ class SnakeAI:
         # Save Scores
         direction_scores = []
 
-        # Go through All moves (4 Directions)
-        for direction in DIRECTIONS: 
+        # Get Valid Direction (Snake cannot turn in on itself - e.g. up to immediate down)
+        if self.current_direction == None:
+            valid_directions = DIRECTIONS
+        else:
+            valid_directions = [d for d in DIRECTIONS if d != (-self.current_direction[0], -self.current_direction[1])]
 
+        # Calculate Score for all Valid directions
+        for direction in valid_directions: 
             direction_score = self.eval_position_lookahead(direction, steps=5)
             direction_scores.append(direction_score)
 
         # Get Index of Max score
         max_score = max(direction_scores)
-        max_index = direction_scores.index(max_score)
-        chosen_direction = DIRECTIONS[max_index]
 
-        
+        # Random Tie breaker to counteract indecisiveness
+        max_indices = [i for i, score in enumerate(direction_scores) if score == max_score]
+        chosen_index = random.choice(max_indices)
+        chosen_direction = valid_directions[chosen_index]
+
+        # Set Current Direction
+        self.current_direction = valid_directions[chosen_index]
+
         # Render Move and Game Logic
         head_y, head_x = self.positions[0]
         new_head = (head_y + chosen_direction[0], head_x + chosen_direction[1])
@@ -355,7 +365,7 @@ def run_game(stdscr):
 
             snake_status = snakeAI.move()
             draw_board_AI(stdscr, snakeAI)
-            time.sleep(0.1)  # Game speed
+            time.sleep(0.01)  # Game speed
 
             if snake_status == "collision":
                 game_state = "Game Over"
@@ -380,7 +390,9 @@ def run_game(stdscr):
             if key == ord("r"):
                 snakeAI = SnakeAI()
                 game_state = prev_game_state
-            if key == ord("q"):
+                continue
+
+            elif key == ord("q"):
                 break
 
             
