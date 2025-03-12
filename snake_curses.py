@@ -1,6 +1,7 @@
 # NOTES TO DISCUSS:
 # Arbirtrary values for scores, make it hard to define hyperparameters
 # Bias towards directions coming first in the array, since max index that appears first ist taken
+# curses-windows for windows
 
 import curses
 import random
@@ -20,6 +21,7 @@ LEFT = (0, -1)
 RIGHT = (0, 1)
 DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
 GAME_SPEED = 0.001
+MENU_OPEN = False
 
 def create_food(snake):  # Ensure food does not spawn in the snake
     while True:
@@ -252,8 +254,8 @@ class SnakeAI:
         # Snake had not Collided, Append move to previous moves
         self.prev_positions.append(new_head)
 
-        # Ensure no more than 5 moves are being saved
-        if len(self.prev_positions) > 20:
+        # Ensure Prev moves is not too long
+        if len(self.prev_positions) > 50:
             self.prev_positions.pop(0)
 
         self.positions.insert(0, new_head)
@@ -363,23 +365,123 @@ def draw_board_AI(stdscr, snake: SnakeAI):
 
     stdscr.refresh()  # Refresh screen
 
+
+# Snake Title Card
+def get_snake_menu_text():
+  
+    title = r"""
+  ██████  ███▄    █  ▄▄▄       ██ ▄█▀▓█████      ▄████  ▄▄▄       
+▒██    ▒  ██ ▀█   █ ▒████▄     ██▄█▒ ▓█   ▀     ██▒ ▀█▒▒████▄    
+░ ▓██▄   ▓██  ▀█ ██▒▒██  ▀█▄  ▓███▄░ ▒███      ▒██░▄▄▄░▒██  ▀█▄  
+  ▒   ██▒▓██▒  ▐▌██▒░██▄▄▄▄██ ▓██ █▄ ▒▓█  ▄    ░▓█  ██▓░██▄▄▄▄██ 
+▒██████▒▒▒██░   ▓██░ ▓█   ▓██▒▒██▒ █▄░▒████▒   ░▒▓███▀▒ ▓█   ▓██▒░
+▒ ▒▓▒ ▒ ░░ ▒░   ▒ ▒  ▒▒   ▓▒█░▒ ▒▒ ▓▒░░ ▒░ ░    ░▒   ▒  ▒▒   ▓▒█░░ 
+░ ░▒  ░ ░░ ░░   ░ ▒░  ▒   ▒▒ ░░ ░▒ ▒░ ░ ░  ░     ░   ░   ▒   ▒▒ ░░ 
+░  ░  ░     ░   ░ ░   ░   ▒   ░ ░░ ░    ░      ░ ░   ░   ░   ▒     
+      ░           ░       ░  ░░  ░      ░  ░         ░       ░  ░   
+"""
+
+    return title
+
+# Animate Text in Line
+def animate_text(stdscr, y_offset, x_offset, string, delay=0.01):
+        
+    temp_string = ""
+
+    # Move in Text at Offset
+    for letter in string:
+        temp_string += letter
+        stdscr.addstr(y_offset, x_offset, temp_string, curses.A_BOLD)  # Below title
+        stdscr.refresh()
+        time.sleep(delay)
+
+
+
+# Function for Drawing the Main Menu
+def draw_menu(stdscr):
+    global MENU_OPEN
+
+    # Text Variables
+    subtitle_1 = "Welcome to Snake GA, the Genetic Algorithm Playground for Snake"
+    subtitle_2 = "The Genetic Algorithm, right here in your console!"
+    menu_title = "MENU"
+    menu_option_1 = "Press '1' to Play a normal round of Snake, see what Fitness score you can achieve!"
+    menu_option_2 = "Press '2' to Train the algorithm, and see how the Genetic Algorithm Learns to Play Snake!"
+    menu_option_3 = "Press '3' to Enter the Playground, Test pre-trained Snakes or enter your own Weights and see how well the snake performs!"
+    menu_option_4 = "Press 'q' to Quit, thank you for playing!"
+
+
+    
+    # Draw the title first
+    title_text = get_snake_menu_text()
+    stdscr.addstr(1, 1, title_text)
+    stdscr.refresh()
+    
+    # Check if Animation should be played
+    if not MENU_OPEN:
+
+        # Animate Menu Text
+        animate_text(stdscr, 11, 1, subtitle_1, 0.01)
+        animate_text(stdscr, 12, 1, subtitle_2, 0.01)
+        animate_text(stdscr, 14, 1, menu_title, 0.02)
+        animate_text(stdscr, 15, 1, menu_option_1, 0.01)
+        animate_text(stdscr, 16, 1, menu_option_2, 0.01)
+        animate_text(stdscr, 17, 1, menu_option_3, 0.01)
+        animate_text(stdscr, 18, 1, menu_option_4, 0.01)
+
+        # Change Menu State to Open
+        MENU_OPEN = True
+
+    if MENU_OPEN:
+
+        # Add Text
+        stdscr.addstr(11, 1, subtitle_1)
+        stdscr.addstr(12, 1, subtitle_2)
+        stdscr.addstr(14, 1, menu_title)    
+        stdscr.addstr(15, 1, menu_option_1)
+        stdscr.addstr(16, 1, menu_option_2)
+        stdscr.addstr(17, 1, menu_option_3)
+        stdscr.addstr(18, 1, menu_option_4)
+
+        # Blink Text
+        stdscr.addstr(20, 1, "PRESS AN OPTION TO CONTINUE", curses.A_BOLD)
+        stdscr.refresh()
+        time.sleep(0.5)
+        stdscr.addstr(20, 1, "                                  ", curses.A_BOLD)
+        stdscr.refresh()
+        time.sleep(0.5)
+
+    
+    
 def run_game(stdscr):
     global GAME_SPEED
 
     # Track Game State
     active = True
-    game_state = "Training"
-    prev_game_state = "Training" # Save Previous Game State that was not "Menu"
+    game_state = "Menu"
+    prev_game_state = "Menu" # Save Previous Game State that was not "Menu"
+    menu_open = False
 
     curses.curs_set(0)  # Hide cursor
     stdscr.nodelay(1)  # Non-blocking input
     stdscr.timeout(100)  # Refresh rate (controls speed)
 
-    snake = Snake()
     snakeAI = SnakeAI()
 
     # Game Loop
     while active:
+
+        if game_state == "Menu":
+            global MENU_OPEN
+            
+            draw_menu(stdscr)
+            key = stdscr.getch()
+            if key == ord("1"):
+                snake = Snake()
+                game_state = "Running"
+                prev_game_state = "Running"
+                stdscr.refresh()
+    
 
         # Normal Snake (Playing the Game Manually) - Catch Key Strokes
         if game_state == "Running":
@@ -433,7 +535,7 @@ def run_game(stdscr):
 
             # Game Over Screen
             stdscr.clear()
-            stdscr.addstr(1, 0, "Game Over" )
+            stdscr.addstr(1, 0, "Game Over", curses.A_BOLD)
             stdscr.addstr(2, 0, 'Press "r" to try again')
             stdscr.addstr(3, 0, 'Press "q" to quit')
 
@@ -453,4 +555,5 @@ def run_game(stdscr):
 
             
 
-curses.wrapper(run_game)
+if __name__ == "__main__":
+    curses.wrapper(run_game)
