@@ -22,6 +22,8 @@ RIGHT = (0, 1)
 DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
 GAME_SPEED = 0.001
 MENU_OPEN = False
+CANDIDATES = [] # Global Variables that holds all candidates
+GENERATIONS = 0 # Global Variable which tracks total Generations
 
 def create_food(snake):  # Ensure food does not spawn in the snake
     while True:
@@ -293,7 +295,7 @@ class SnakeAI:
             self.positions.pop()  # Remove tail
         
         return "safe"
-
+    
 
 # Display the Board in the Terminal via Curses
 def draw_board(stdscr, snake: Snake):
@@ -385,7 +387,6 @@ def draw_board_AI(stdscr, snake: SnakeAI):
 
     stdscr.refresh()  # Refresh screen
 
-
 # Snake Title Card
 def get_snake_menu_text():
   
@@ -414,6 +415,44 @@ def animate_text(stdscr, y_offset, x_offset, string, delay=0.01):
         stdscr.addstr(y_offset, x_offset, temp_string, curses.A_BOLD)  # Below title
         stdscr.refresh()
         time.sleep(delay)
+
+def animate_text_normal(stdscr, y_offset, x_offset, string, delay=0.01):
+        
+    temp_string = ""
+
+    # Move in Text at Offset
+    for letter in string:
+        temp_string += letter
+        stdscr.addstr(y_offset, x_offset, temp_string)  # Below title
+        stdscr.refresh()
+        time.sleep(delay)
+
+# Function to get numeric input
+def get_numeric_input(stdscr, prompt, y, x, min_value=1, max_value=1000):
+
+    curses.echo()  # Enable input visibility
+    while True:
+        stdscr.addstr(y, x, prompt)  
+        stdscr.refresh()
+        
+        try:
+            stdscr.move(y, x + len(prompt))  # Move cursor to input area
+            user_input = stdscr.getstr().decode("utf-8").strip()
+            
+            if user_input.isdigit():
+                num = int(user_input)
+                if min_value <= num <= max_value:
+                    return num
+                else:
+                    stdscr.addstr(y+1, x, f"Enter a number between {min_value} and {max_value}.", curses.A_BOLD)
+            else:
+                stdscr.addstr(y+1, x, "Invalid input! Please enter a number.", curses.A_BOLD)
+            stdscr.refresh()
+            time.sleep(1)  # Show error for a second
+            stdscr.move(y, x)  # Move cursor back
+            stdscr.clrtoeol()  # Clear invalid input
+        except:
+            pass
 
 
 
@@ -471,7 +510,115 @@ def draw_menu(stdscr):
         stdscr.refresh()
         time.sleep(0.5)
 
+# Training Initilisation Process
+def initialise(stdscr):
+    global CANDIDATES 
+
+    # TODO: Load Candidates from CSV
+
+    # Reset Candidates
+    CANDIDATES = []
+
+    # Clear Screen
+    stdscr.clear()
     
+    # Initialisation Process
+    animate_text(stdscr, 1, 1, "Initializing Training...", 0.1)
+
+    # Turn on input blocking
+    stdscr.nodelay(0)
+
+    # Get User Inputs
+    stdscr.addstr(4,5, "Press 'Enter' to confirm input")
+    num_candidates = get_numeric_input(stdscr, "Enter number of candidates per generation: ", 5, 5)
+    num_generations = get_numeric_input(stdscr, "Enter number of generations to train for: ", 7, 5)
+
+    # Confirm Inputs
+    animate_text(stdscr, 9, 1, f"Train {num_candidates} candidates for {num_generations} generations?", 0.01)
+    stdscr.addstr(10,1, "Press 'Enter' to confirm input, Press 'r' to reset, Press 'm' to return to Menu")
+    key = stdscr.getch()
+
+    # Check Keystrokes
+    if key in [curses.KEY_ENTER, 10]:  # ENTER key handling:
+        animate_text(stdscr, 12, 1, "Generating candidates...")
+        GENERATIONS = num_generations
+
+        # Generate Random Genomes (7 Values for Each Candidate)
+        for candidate in range(0, num_candidates):
+
+            # Append Genome to Candidates List
+            CANDIDATES.append([random.uniform(0, 1) for _ in range(7)])
+
+        animate_text(stdscr, 12, 1, "Candidates generated...")
+        time.sleep(1)
+
+    elif key == ord("r"):
+
+        # Tun on Input Blocking
+        stdscr.nodelay(1)
+        return "RESET"
+    
+    elif key == ord("m"):
+
+        # Tun on Input Blocking
+        stdscr.nodelay(1)
+        return "MENU"
+    
+    
+    # Display List of all Candidates (interactive)
+    stdscr.clear()
+    viewing = True
+    candidate_index = 0
+
+    animate_text_normal(stdscr, 1, 1, "Candidate Brains Overview")
+    while viewing:
+
+        # Show Weights of current candidate
+        stdscr.addstr(1,1, "Candidate Brains Overview")
+        stdscr.addstr(3, 1, f"Candidate {candidate_index+1}/{len(CANDIDATES)}", curses.A_BOLD)
+        stdscr.addstr(4,1, f"Collision Weight: {CANDIDATES[candidate_index][0]}")
+        stdscr.addstr(5,1, f"Food X Weight: {CANDIDATES[candidate_index][1]}")
+        stdscr.addstr(6,1, f"Food Y Weight: {CANDIDATES[candidate_index][2]}")
+        stdscr.addstr(7,1, f"Tail X Weight: {CANDIDATES[candidate_index][3]}")
+        stdscr.addstr(8,1, f"Tail Y Weight: {CANDIDATES[candidate_index][4]}")
+        stdscr.addstr(9,1, f"Loop Weight: {CANDIDATES[candidate_index][5]}")
+        stdscr.addstr(10,1, f"Food Collection Weight: {CANDIDATES[candidate_index][6]}")
+
+        # Show Controls
+        stdscr.addstr(12,1, "Move through candidates with 'a' and 'd', Press 'Enter' to Continue", curses.A_BOLD)
+
+        # Get Keystrokes
+        key = stdscr.getch()
+        if key == ord('a'):
+            if candidate_index != 0:
+                candidate_index -= 1
+            stdscr.clear()
+
+        elif key == ord('d'):
+            if candidate_index != len(CANDIDATES)-1:
+                candidate_index +=1
+            stdscr.clear()
+
+        elif key in [curses.KEY_ENTER, 10]:
+            viewing = False
+    
+    # Complete Initialisation
+    stdscr.clear()
+    animate_text(stdscr, 1, 1, "Initialisation Complete")
+    time.sleep(2)
+    animate_text(stdscr, 1, 1, "Commencing Training...     ")
+    time.sleep(2)
+
+    # Tun on Input Blocking
+    stdscr.nodelay(1)
+    return "INIT_COMPLETE"
+
+
+
+
+
+
+
     
 def run_game(stdscr):
     global GAME_SPEED
@@ -503,6 +650,11 @@ def run_game(stdscr):
                 prev_game_state = "Running"
                 stdscr.refresh()
 
+            if key == ord("2"):
+
+                # Initialize Training
+                game_state = "Initialization"
+
             elif key == ord("q"):
                 stdscr.clear()
                 animate_text(stdscr, 1, 1, "Goodbye!", 0.1)
@@ -531,7 +683,9 @@ def run_game(stdscr):
             if snake_status == "collision":
                 game_state = "Game Over"
 
-
+        # Training Initialisation
+        if game_state == "Initialization":
+            initialise(stdscr)
 
         # Training Loop
         if game_state == "Training":
