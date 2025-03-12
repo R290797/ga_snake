@@ -124,10 +124,8 @@ while running:
 
         # Draw top bar
         pygame.draw.rect(screen, BACKGROUND_GRAY, (0, 0, WIDTH + SIDE_BAR_WIDTH, TOP_BAR_HEIGHT))
-        header_text = font.render(f"Training", True, WHITE)
-        screen.blit(header_text, (20, 10))
-        score_text = font.render(f"Score: {score}", True, WHITE)
-        screen.blit(score_text, (20, 40))
+        display_text("Training", 20, 10)
+        display_text(f"Score: {score}", 20, 40)
 
         # Draw Side bar
         header_text = font.render(f"Training", True, WHITE)
