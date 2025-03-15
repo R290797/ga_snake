@@ -432,8 +432,10 @@ def evolve_snakes(snakes):
 
 
         #Mutation
-        mutation_rate = max(0.05, 0.3 * np.exp(-0.01 * len(generation_fitness)))  # Decay over time
-        mutation = np.random.randn(len(new_brain)) * mutation_rate
+        if len(generation_fitness) > 1 and generation_fitness[-1] > generation_fitness[-2]:
+            mutation = np.random.randn(len(new_brain)) * 0.1  # Less mutation if improving
+        else:
+            mutation = np.random.randn(len(new_brain)) * 0.3  # More mutation if not improving
 
          
         new_brain += mutation
