@@ -10,6 +10,8 @@ sys.stdout.reconfigure(encoding='utf-8')
 # Initialize Pygame
 pygame.init()
 
+best_score_overall = 0
+best_length_overall = 0
 # Game Constants
 WIDTH, HEIGHT = 600, 600
 TOP_BAR_HEIGHT = 50
@@ -409,7 +411,7 @@ def draw_game(game_mode="train_ai", model_params=None):
 
 
 def run_generation():
-    global snakes, generation_start_time
+    global snakes, generation_start_time, best_score_overall, best_length_overall
     generation_start_time = time.time()
     running = True
 
@@ -430,6 +432,12 @@ def run_generation():
 
     # **Calculate Key Metrics**
     best_snake = max(snakes, key=lambda s: s.fitness_function(), default=None)
+    if best_snake is not None:
+        # Update best_score_overall if this generation’s snake is better
+        if best_snake.score > best_score_overall:
+            best_score_overall = best_snake.score
+        if best_snake.length > best_length_overall:
+            best_length_overall = best_snake.length
     best_fitness = best_snake.fitness_function() if best_snake else 0
     avg_fitness = np.mean([snake.fitness_function() for snake in snakes])
 
@@ -473,12 +481,19 @@ def evolve_snakes(snakes):
     """ Evolves the population by selecting top performers, mutating, and generating offspring """
     top_performers = sorted(
         snakes, key=lambda s: s.fitness_function(), reverse=True)[:10]
+    if not top_performers:
+        # Fallback if no snake survived
+        return [SnakeAI() for _ in range(len(snakes))]
     winner_snake = top_performers[0]
     new_snakes = []
 
     for _ in range(len(snakes)):
-        parent1 = random.choice(top_performers[:3])  # Top 3 performers
-        parent2 = random.choice(top_performers[3:])  # Mid-tier performers
+        # Ensure that we have enough top performers for both parents:
+        parent1 = random.choice(top_performers[:min(3, len(top_performers))])
+        if len(top_performers) > 3:
+            parent2 = random.choice(top_performers[3:])
+        else:
+            parent2 = random.choice(top_performers)
         parent3 = random.choice(snakes)
         parent4 = winner_snake
 
@@ -486,17 +501,13 @@ def evolve_snakes(snakes):
         cut = np.random.randint(0, len(parent1.brain))  # Random split point
         new_brain = np.concatenate((parent1.brain[:cut], parent2.brain[cut:]))
 
-        # Mutation
+        # Mutation (adjust mutation scale as needed)
         if len(generation_fitness) > 1 and generation_fitness[-1] > generation_fitness[-2]:
-            # Less mutation if improving
             mutation = np.random.randn(len(new_brain)) * 0.1
         else:
-            # More mutation if not improving
             mutation = np.random.randn(len(new_brain)) * 0.3
-
         new_brain += mutation
 
-        # **Create new snake with evolved brain**
         new_snakes.append(SnakeAI(brain=new_brain))
 
     return new_snakes
@@ -742,91 +753,67 @@ def show_training_summary(best_score, best_length, training_time):
     font_large = pygame.font.SysFont(None, 50)
     font_small = pygame.font.SysFont(None, 30)
 
-    # **Display Training Complete Message**
+    # Title
     title_text = font_large.render("Training Complete", True, BLACK)
     screen.blit(title_text, (WIDTH // 2 -
                 title_text.get_width() // 2, HEIGHT // 3))
 
-    # **Display Final Training Results**
+    # Stats
     stats_text = [
         f"Final Best Score: {best_score}",
         f"Final Best Length: {best_length}",
-        f"Total Training Time: {round(training_time, 2)}s"
+        f"Total Training Time: {training_time:.2f}s"
     ]
+    stats_start_y = HEIGHT // 2 - 40
+    for i, text_line in enumerate(stats_text):
+        stat_render = font_small.render(text_line, True, BLACK)
+        screen.blit(stat_render, (WIDTH // 2 - stat_render.get_width() // 2,
+                                  stats_start_y + i * 40))
 
-    stats_start_y = HEIGHT // 2 - 40  # Center stats properly
-    for i, text in enumerate(stats_text):
-        stat_render = font_small.render(text, True, BLACK)
-        screen.blit(stat_render, (WIDTH // 2 -
-                    stat_render.get_width() // 2, stats_start_y + i * 40))
+    # --- Define Buttons in a Single Pass ---
+    button_width = 120
+    button_height = 40
+    button_spacing = 20
 
-    # **Button Positions (Adjusted for New "Pre-Train" Button)**
-    button_y = HEIGHT // 1.4
-    button_width = int(140 * 0.7)  # Reduce width by 30%
-    button_height = int(50 * 0.7)  # Reduce height by 30%
-    button_spacing = 20  # Space between buttons
-    total_button_width = (button_width * 2) + button_spacing
+    # total width for 4 buttons = 4 * button_width + 3 * button_spacing
+    total_button_width = 4 * button_width + 3 * button_spacing
+    start_x = (WIDTH - total_button_width) // 2
+    y = int(HEIGHT * 0.75)  # 75% down the screen
 
-    # **Starting X Position to Center Buttons**
-    start_x = WIDTH // 2 - (button_width + button_spacing)
-
-    # **First Row (Replay & Pre-Train)**
-    row1_y = HEIGHT // 1.3
-    replay_button = pygame.Rect(start_x, row1_y, button_width, button_height)
+    # Create rects side by side
+    menu_button = pygame.Rect(start_x, y, button_width, button_height)
     pretrain_button = pygame.Rect(
-        start_x + button_width + button_spacing, row1_y, button_width, button_height)
-
-    # **Second Row (Menu & Quit)**
-    row2_y = row1_y + button_height + button_spacing
-    menu_button = pygame.Rect(start_x, row2_y, button_width, button_height)
-    quit_button = pygame.Rect(
-        start_x + button_width + button_spacing, row2_y, button_width, button_height)
-
-    # **Starting X Position to Center Buttons**
-    start_x = WIDTH // 2 - total_button_width // 2
-
-    menu_button = pygame.Rect(start_x, button_y, button_width, button_height)
-    pretrain_button = pygame.Rect(
-        start_x + button_width + 20, button_y, button_width, button_height)
+        start_x + (button_width + button_spacing), y, button_width, button_height
+    )
     replay_button = pygame.Rect(
-        start_x + (button_width + 20) * 2, button_y, button_width, button_height)
+        start_x + 2*(button_width +
+                     button_spacing), y, button_width, button_height
+    )
     quit_button = pygame.Rect(
-        start_x + (button_width + 20) * 3, button_y, button_width, button_height)
+        start_x + 3*(button_width +
+                     button_spacing), y, button_width, button_height
+    )
 
-    button_y = HEIGHT // 1.4  # Center buttons properly
-
-    menu_button = pygame.Rect(WIDTH // 2 - button_width * 1.5 -
-                              button_spacing, button_y, button_width, button_height)
-    replay_button = pygame.Rect(
-        WIDTH // 2 - button_width // 2, button_y, button_width, button_height)
-    quit_button = pygame.Rect(WIDTH // 2 + button_width // 2 +
-                              button_spacing, button_y, button_width, button_height)
-
-    # **Draw Buttons in New Layout**
-    pygame.draw.rect(screen, GREEN, replay_button, border_radius=10)
-    pygame.draw.rect(screen, BLUE, pretrain_button, border_radius=10)
+    # Draw them
     pygame.draw.rect(screen, BROWN, menu_button, border_radius=10)
+    pygame.draw.rect(screen, BLUE, pretrain_button, border_radius=10)
+    pygame.draw.rect(screen, GREEN, replay_button, border_radius=10)
     pygame.draw.rect(screen, RED, quit_button, border_radius=10)
 
-    # **Render Button Text**
-    menu_text = font_small.render("Menu", True, WHITE)
-    pretrain_text = font_small.render("Pre-Train", True, WHITE)
-    replay_text = font_small.render("Replay", True, WHITE)
-    quit_text = font_small.render("Quit", True, WHITE)
+    # Button text
+    def draw_button_text(rect, text):
+        text_surf = font_small.render(text, True, WHITE)
+        screen.blit(text_surf, (rect.x + rect.width // 2 - text_surf.get_width() // 2,
+                                rect.y + rect.height // 2 - text_surf.get_height() // 2))
 
-    def center_button_text(button, text_render):
-        screen.blit(text_render, (button.x + button.width // 2 - text_render.get_width() // 2,
-                                  button.y + button.height // 2 - text_render.get_height() // 2))
-
-    # **Render Button Text in Correct Layout**
-    center_button_text(replay_button, replay_text)
-    center_button_text(pretrain_button, pretrain_text)
-    center_button_text(menu_button, menu_text)
-    center_button_text(quit_button, quit_text)
+    draw_button_text(menu_button, "Menu")
+    draw_button_text(pretrain_button, "Pre-Train")
+    draw_button_text(replay_button, "Replay")
+    draw_button_text(quit_button, "Quit")
 
     pygame.display.flip()
 
-    # **Wait for User Input**
+    # --- Wait for Clicks ---
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -902,10 +889,19 @@ def main():
                 training_start_time = time.time()
 
                 for generation in range(num_generations):
-                    # ... your generation loop, including run_generation() ...
-                    run_generation()
+                    run_generation()  # This updates best_score_overall and best_length_overall internally
 
-                # Calculate best snake and best weights (with default if necessary)
+                # After training, recalc current generation’s best score/length if needed:
+                current_best_score = max(
+                    (snake.score for snake in snakes), default=0)
+                current_best_length = max(
+                    (snake.length for snake in snakes), default=0)
+
+                # Use one summary screen – you can choose whichever values you prefer:
+                action = show_training_summary(current_best_score, current_best_length,
+                                               round(time.time() - training_start_time, 2))
+
+                # Compute best snake weights for potential pretraining:
                 best_snake = max(
                     snakes, key=lambda s: s.fitness_function(), default=None)
                 if best_snake is None:
@@ -913,10 +909,6 @@ def main():
                 else:
                     best_weights = best_snake.brain.tolist()
 
-                action = show_training_summary(
-                    best_score, best_length, round(
-                        time.time() - training_start_time, 2)
-                )
                 if action == "replay":
                     continue
                 elif action == "pretrain":
