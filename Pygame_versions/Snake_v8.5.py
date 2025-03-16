@@ -128,63 +128,54 @@ class SnakeAI:
             if (new_x, new_y) in self.snake or (new_x, new_y) in self.border_walls:
                 return -1000  # Heavy penalty for moving into a wall or itself
 
-            # Calculate distance to food
+            # Calculate basic scores
             distance_to_food = abs(self.food[0] - new_x) + abs(self.food[1] - new_y)
-
-            # ✅ **Fix: Reduce food bonus (75 instead of 100) to prevent overriding safety concerns**
-            food_bonus = self.brain[0] * (75 if (new_x, new_y) == self.food else 0)
-
-            # ✅ **Fix: Remove conflicting away-food penalty**
+            food_bonus = self.brain[0] * (100 if (new_x, new_y) == self.food else 0)
             toward_food_reward = self.brain[1] * -distance_to_food
+            away_food_penalty = self.brain[2] * (distance_to_food * 0.5)
+            loop_penalty = self.brain[3] * (-25 if self.previous_positions.count((new_x, new_y)) > 2 else 0)
+            survival_bonus = self.brain[4] * np.log1p(time.time() - self.start_time) * 3
 
-            # ✅ **Fix: Make loop penalty progressive (-10 per visit, up to -30 max)**
-            visit_count = self.previous_positions.count((new_x, new_y))
-            loop_penalty = self.brain[3] * (-10 * visit_count if visit_count > 1 else 0)
-
-            # ✅ **Fix: Increase wall penalty (-5 instead of -2) for better obstacle avoidance**
+            # Wall penalty
             is_near_wall = new_x < CELL_SIZE or new_x > WIDTH - CELL_SIZE or new_y < CELL_SIZE or new_y > HEIGHT - CELL_SIZE
             is_food_near_wall = self.food[0] < CELL_SIZE or self.food[0] > WIDTH - CELL_SIZE or self.food[1] < CELL_SIZE or self.food[1] > HEIGHT - CELL_SIZE
-            wall_penalty = self.brain[5] * (-5 if is_near_wall and not is_food_near_wall else 0)
+            wall_penalty = self.brain[5] * (-2 if is_near_wall and not is_food_near_wall else 0)
 
-            # ✅ **Fix: Reduce momentum bonus (5 instead of 10) & make it progressive**
-            recent_direction = self.previous_positions[-5:]  # Check last 5 moves
-            same_direction_count = sum(1 for pos in recent_direction if pos == self.direction)
-            momentum_bonus = self.brain[7] * (5 * same_direction_count if direction == self.direction else 0)
+            # Momentum bonus
+            momentum_bonus = self.brain[7] * (10 if direction == self.direction else 0)
 
-            # ✅ **Fix: Apply exponential decay to exploration bonus (more important early-game)**
+            # Exploration bonus
             unique_positions = len(set(self.previous_positions))
-            exploration_bonus = self.brain[6] * (unique_positions / (len(self.previous_positions) + 1)) * np.exp(-0.05 * len(self.previous_positions))
+            exploration_bonus = self.brain[6] * (unique_positions / (len(self.previous_positions) + 1))
 
-            # ✅ **Fix: Merge dead-end detection with self-collision penalty**
+            # Self-collision avoidance with lookahead
             lookahead_positions = [(new_x + dx * CELL_SIZE, new_y + dy * CELL_SIZE) for dx, dy in DIRECTIONS]
-            lookahead_collisions = sum(pos in self.snake for pos in lookahead_positions)
-            dead_end_penalty = self.brain[8] * (-20 if lookahead_collisions >= 2 else 0)
+            lookahead_penalty = -5 if sum(pos in self.snake for pos in lookahead_positions) >= 2 else 0
 
-            # ✅ **Fix: Improve recursive lookahead to break loops**
-            if depth > 0 and visit_count > 1:
-                loop_penalty -= 10 * depth  # Increase penalty deeper in recursion
+            # Dead end detection
+            lookahead_count = sum(
+                (nx, ny) not in self.snake and (GAME_AREA_X <= nx < GAME_AREA_X + GAME_AREA_WIDTH and GAME_AREA_Y <= ny < GAME_AREA_Y + GAME_AREA_HEIGHT)
+                for nx, ny in [(new_x + dx * CELL_SIZE, new_y + dy * CELL_SIZE) for dx, dy in DIRECTIONS]
+            )
+            dead_end_penalty = self.brain[8] * (-20 if lookahead_count <= 1 else 0)
 
-            # Compute total score
+            # Compute total score for this move
             total_score = (
-                food_bonus + toward_food_reward +
-                loop_penalty + wall_penalty +
-                exploration_bonus + momentum_bonus + dead_end_penalty
+                food_bonus + toward_food_reward - away_food_penalty +
+                loop_penalty + survival_bonus - wall_penalty +
+                exploration_bonus + lookahead_penalty + momentum_bonus + dead_end_penalty
             )
 
-            # **Recursive Lookahead (Modified)**
-            if depth < 2:  # Look ahead up to 3 moves
-                future_scores = [simulate_move((new_x, new_y), next_move, depth + 1) for next_move in DIRECTIONS]
-                best_future_score = max(future_scores)
-
-                # ✅ **Fix: If future best move still results in a loop, force a different choice**
-                if best_future_score < -50:
-                    total_score -= 30  # Stronger loop deterrent
-                else:
-                    total_score += best_future_score * 0.7  # Discounted future rewards
+            # Recursive lookahead
+            if depth < 2:  # Look ahead up to 3 moves (depth 0, 1, 2)
+                best_future_score = max(
+                    simulate_move((new_x, new_y), next_move, depth + 1) for next_move in DIRECTIONS
+                )
+                total_score += best_future_score * 0.7  # Discount future rewards slightly
 
             return total_score
 
-        # **Evaluate All Possible First Moves**
+        # Evaluate all possible first moves
         head_x, head_y = self.snake[0]
         best_move = None
         best_score = float('-inf')
@@ -196,7 +187,6 @@ class SnakeAI:
                 best_move = move
 
         return best_move if best_move else random.choice(DIRECTIONS)  # Fallback to random if no move is found
-
 
 
     def move(self):

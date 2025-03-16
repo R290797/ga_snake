@@ -1,0 +1,122 @@
+Generation 0 - Best Score: 0, Length: 0, Time: 0.0s
+==================================================
+ Generation 1 Summary 
+==================================================
+ Best Fitness Score: 65168234.13
+ Average Fitness Score: 8962097.42
+ Best Length Achieved: 52
+ Average Length of Snakes: 10.60
+--------------------------------------------------
+ Inherited Weights (Brain Parameters)
+  - Food Bonus Weight: 0.537
+  - Toward Food Weight: 0.441
+  - Away Food Penalty: 0.154
+  - Loop Penalty: -0.026
+  - Survival Bonus: -0.001
+  - Wall Penalty: -0.058
+  - Exploration Bonus: 0.287
+  - Momentum Bonus: -0.539
+  - Dead-End Penalty: -0.340
+==================================================
+Generation 1 - Best Score: 0, Length: 0, Time: 17.93s
+==================================================
+ Generation 2 Summary 
+==================================================
+ Best Fitness Score: 76414890.71
+ Average Fitness Score: 19429287.35
+ Best Length Achieved: 55
+ Average Length of Snakes: 27.30
+--------------------------------------------------
+ Inherited Weights (Brain Parameters)
+  - Food Bonus Weight: 0.589
+  - Toward Food Weight: 0.296
+  - Away Food Penalty: -0.214
+  - Loop Penalty: -0.002
+  - Survival Bonus: -0.316
+  - Wall Penalty: -0.074
+  - Exploration Bonus: 1.034
+  - Momentum Bonus: 0.322
+  - Dead-End Penalty: -0.024
+==================================================
+Generation 2 - Best Score: 0, Length: 0, Time: 41.69s
+==================================================
+ Generation 3 Summary 
+==================================================
+ Best Fitness Score: 148942900.93
+ Average Fitness Score: 36296982.89
+ Best Length Achieved: 69
+ Average Length of Snakes: 35.90
+--------------------------------------------------
+ Inherited Weights (Brain Parameters)
+  - Food Bonus Weight: 0.529
+  - Toward Food Weight: 0.376
+  - Away Food Penalty: -0.245
+  - Loop Penalty: 0.078
+  - Survival Bonus: -0.435
+  - Wall Penalty: -0.073
+  - Exploration Bonus: 1.088
+  - Momentum Bonus: -0.424
+  - Dead-End Penalty: -0.377
+==================================================
+Generation 3 - Best Score: 0, Length: 0, Time: 71.52s
+==================================================
+ Generation 4 Summary 
+==================================================
+ Best Fitness Score: 115611045.74
+ Average Fitness Score: 41700742.92
+ Best Length Achieved: 60
+ Average Length of Snakes: 41.95
+--------------------------------------------------
+ Inherited Weights (Brain Parameters)
+  - Food Bonus Weight: 0.088
+  - Toward Food Weight: 0.547
+  - Away Food Penalty: -0.142
+  - Loop Penalty: -0.077
+  - Survival Bonus: -0.351
+  - Wall Penalty: -0.036
+  - Exploration Bonus: -0.229
+  - Momentum Bonus: -0.253
+  - Dead-End Penalty: -0.242
+==================================================
+Generation 4 - Best Score: 0, Length: 0, Time: 104.79s
+==================================================
+ Generation 5 Summary 
+==================================================
+ Best Fitness Score: 134347714.48
+ Average Fitness Score: 22276227.86
+ Best Length Achieved: 66
+ Average Length of Snakes: 28.00
+--------------------------------------------------
+ Inherited Weights (Brain Parameters)
+  - Food Bonus Weight: 0.310
+  - Toward Food Weight: 1.030
+  - Away Food Penalty: 0.132
+  - Loop Penalty: -0.179
+  - Survival Bonus: -0.774
+  - Wall Penalty: 0.704
+  - Exploration Bonus: -0.496
+  - Momentum Bonus: -0.636
+  - Dead-End Penalty: 0.004
+==================================================
+Generation 5 - Best Score: 0, Length: 0, Time: 131.05s
+==================================================
+ Generation 6 Summary 
+==================================================
+ Best Fitness Score: 228292619.65
+ Average Fitness Score: 33014553.98
+ Best Length Achieved: 79
+ Average Length of Snakes: 36.05
+--------------------------------------------------
+ Inherited Weights (Brain Parameters)
+  - Food Bonus Weight: 0.126
+  - Toward Food Weight: 0.849
+  - Away Food Penalty: 0.213
+  - Loop Penalty: 0.203
+  - Survival Bonus: -0.781
+  - Wall Penalty: 0.713
+  - Exploration Bonus: -0.384
+  - Momentum Bonus: 0.060
+  - Dead-End Penalty: -0.576
+==================================================
+Generation 6 - Best Score: 0, Length: 0, Time: 167.51s
+Generation 7 - Best Score: 3044.0, Length: 11, Time: 170.27s

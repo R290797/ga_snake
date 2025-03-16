@@ -6,7 +6,7 @@ import numpy as np
 import time
 import sys  
 
-
+sys.stdout.reconfigure(encoding='utf-8')
 # Initialize Pygame
 pygame.init()
 
@@ -410,26 +410,28 @@ def run_generation():
     best_weights = best_snake.brain if best_snake else np.zeros(9)
 
     # **Print Generation Summary**
-    print("=" * 50)
-    print(f" Generation {len(generation_fitness) + 1} Summary ")
-    print("=" * 50)
-    print(f" 🏆 Best Fitness Score: {best_fitness:.2f}")
-    print(f" 📊 Average Fitness Score: {avg_fitness:.2f}")
-    print(f" 🐍 Best Length Achieved: {best_length}")
-    print(f" 📏 Average Length of Snakes: {avg_length:.2f}")
-    print("-" * 50)
-    print(" 🧠 Inherited Weights (Brain Parameters)")
-    print(f"  - Food Bonus Weight: {best_weights[0]:.3f}")
-    print(f"  - Toward Food Weight: {best_weights[1]:.3f}")
-    print(f"  - Away Food Penalty: {best_weights[2]:.3f}")
-    print(f"  - Loop Penalty: {best_weights[3]:.3f}")
-    print(f"  - Survival Bonus: {best_weights[4]:.3f}")
-    print(f"  - Wall Penalty: {best_weights[5]:.3f}")
-    print(f"  - Exploration Bonus: {best_weights[6]:.3f}")
-    print(f"  - Momentum Bonus: {best_weights[7]:.3f}")
-    print(f"  - Dead-End Penalty: {best_weights[8]:.3f}")
-    print("=" * 50)
+    log_and_print("=" * 50)
+    log_and_print(f" Generation {len(generation_fitness) + 1} Summary ")
+    log_and_print("=" * 50)
+    log_and_print(f" Best Fitness Score: {best_fitness:.2f}")
+    log_and_print(f" Average Fitness Score: {avg_fitness:.2f}")
+    log_and_print(f" Best Length Achieved: {best_length}")
+    log_and_print(f" Average Length of Snakes: {avg_length:.2f}")
+    log_and_print("-" * 50)
+    log_and_print(" Inherited Weights (Brain Parameters)")
+    log_and_print(f"  - Food Bonus Weight: {best_weights[0]:.3f}")
+    log_and_print(f"  - Toward Food Weight: {best_weights[1]:.3f}")
+    log_and_print(f"  - Away Food Penalty: {best_weights[2]:.3f}")
+    log_and_print(f"  - Loop Penalty: {best_weights[3]:.3f}")
+    log_and_print(f"  - Survival Bonus: {best_weights[4]:.3f}")
+    log_and_print(f"  - Wall Penalty: {best_weights[5]:.3f}")
+    log_and_print(f"  - Exploration Bonus: {best_weights[6]:.3f}")
+    log_and_print(f"  - Momentum Bonus: {best_weights[7]:.3f}")
+    log_and_print(f"  - Dead-End Penalty: {best_weights[8]:.3f}")
+    log_and_print("=" * 50)
 
+
+    
     # **Store Data for Future Analysis**
     generation_fitness.append(best_fitness)
     generation_avg_fitness.append(avg_fitness)
@@ -438,6 +440,13 @@ def run_generation():
     # **Evolve Snakes for Next Generation**
     snakes = evolve_snakes(snakes)
 
+log_filename = "Snake_GA_Pygame/training_log.txt"
+
+def log_and_print(*args, **kwargs):
+    """ Prints output to the console and also writes it to a log file. """
+    print(*args, **kwargs)  # Print to terminal
+    with open(log_filename, "a") as log_file:
+        print(*args, **kwargs, file=log_file)  # Also write to log file
 
 def evolve_snakes(snakes):
     """ Evolves the population by selecting top performers, mutating, and generating offspring """
@@ -838,7 +847,7 @@ elif selection == "train":
                 best_weights = best_snake.brain.tolist()  # Convert numpy array to list for saving
 
 
-            print(f"Generation {generation} - Best Score: {best_score}, Length: {best_length}, Time: {elapsed_time}s")
+            log_and_print(f"Generation {generation} - Best Score: {best_score}, Length: {best_length}, Time: {elapsed_time}s")
             run_generation()
 
         # **Show Training Summary and Handle Replay**
