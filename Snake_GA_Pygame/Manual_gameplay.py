@@ -156,29 +156,40 @@ def show_game_over_screen(snake):
     font_small = pygame.font.SysFont(None, 30)
 
     game_over_text = font_large.render("Game Over", True, RED)
-    prompt_text = font_small.render(
-        "Press M for Menu or R to Replay", True, WHITE)
+    screen.blit(game_over_text, (WIDTH // 2 -
+                game_over_text.get_width() // 2, HEIGHT // 2 - 100))
 
-    # Center the text
-    screen.blit(game_over_text, (WIDTH//2 -
-                game_over_text.get_width()//2, HEIGHT//2 - 60))
-    screen.blit(prompt_text, (WIDTH//2 - prompt_text.get_width()//2, HEIGHT//2))
+    button_width, button_height = 150, 50
+    button_spacing = 20
+
+    menu_button = pygame.Rect(WIDTH // 2 - button_width -
+                              button_spacing // 2, HEIGHT // 2, button_width, button_height)
+    replay_button = pygame.Rect(
+        WIDTH // 2 + button_spacing // 2, HEIGHT // 2, button_width, button_height)
+
+    pygame.draw.rect(screen, BROWN, menu_button, border_radius=10)
+    pygame.draw.rect(screen, GREEN, replay_button, border_radius=10)
+
+    menu_text = font_small.render("Menu", True, WHITE)
+    replay_text = font_small.render("Replay", True, WHITE)
+    screen.blit(menu_text, (menu_button.x + menu_button.width // 2 - menu_text.get_width() // 2,
+                            menu_button.y + menu_button.height // 2 - menu_text.get_height() // 2))
+    screen.blit(replay_text, (replay_button.x + replay_button.width // 2 - replay_text.get_width() // 2,
+                              replay_button.y + replay_button.height // 2 - replay_text.get_height() // 2))
+
     pygame.display.flip()
 
-    waiting = True
-    while waiting:
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_m:
-                    waiting = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if menu_button.collidepoint(pos):
                     return "menu"
-                elif event.key == pygame.K_r:
-                    waiting = False
+                elif replay_button.collidepoint(pos):
                     return "replay"
-    # Fallback action
     return "menu"
 
 
