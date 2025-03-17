@@ -56,6 +56,9 @@ class ManualKeysSnake:
         self.alive = True
         self.start_time = time.time()
         self.last_food_time = time.time()
+        self.moves_made = 0  # ✅ Track total moves
+        self.food_collected = 0  # ✅ Track total food eaten
+
 
         # ✅ Define Border Walls Before Spawning Food
         self.border_walls = set()
@@ -100,7 +103,8 @@ class ManualKeysSnake:
 
         # Move the snake
         self.snake.insert(0, new_head)
-
+        self.moves_made += 1
+        
         # **Fix Food Collection Detection**
         if new_head == self.food:  # ✅ Checks correct position
             self.score += 50
@@ -150,35 +154,61 @@ def draw_game(snake):
 
 
 def show_game_over_screen(snake):
-    """Display a game over screen and wait for user input to either replay or return to menu."""
+    """Display a game over screen with game results and wait for user input to either replay or return to menu."""
     screen.fill(BACKGROUND_GRAY)
     font_large = pygame.font.SysFont(None, 50)
     font_small = pygame.font.SysFont(None, 30)
 
+    # **Game Over Message**
     game_over_text = font_large.render("Game Over", True, RED)
-    prompt_text = font_small.render(
-        "Press M for Menu or R to Replay", True, WHITE)
+    screen.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2 - 150))
 
-    # Center the text
-    screen.blit(game_over_text, (WIDTH//2 -
-                game_over_text.get_width()//2, HEIGHT//2 - 60))
-    screen.blit(prompt_text, (WIDTH//2 - prompt_text.get_width()//2, HEIGHT//2))
+    # **Calculate Game Stats**
+    elapsed_time = round(time.time() - snake.start_time, 2)
+    stats_text = [
+        f"Time: {elapsed_time}s",
+        f"Score: {snake.score}",
+        f"Length: {snake.length}",
+    ]
+
+    # **Display Game Stats**
+    stats_start_y = HEIGHT // 2 - 80  # Move stats higher to avoid overlapping buttons
+    for i, text in enumerate(stats_text):
+        stat_render = font_small.render(text, True, BLACK)
+        screen.blit(stat_render, (WIDTH // 2 - stat_render.get_width() // 2, stats_start_y + i * 30))
+
+    # **Button Positions**
+    button_width, button_height = 150, 50
+    button_spacing = 20
+
+    menu_button = pygame.Rect(WIDTH // 2 - button_width - button_spacing // 2, HEIGHT // 2 + 50, button_width, button_height)
+    replay_button = pygame.Rect(WIDTH // 2 + button_spacing // 2, HEIGHT // 2 + 50, button_width, button_height)
+
+    pygame.draw.rect(screen, BROWN, menu_button, border_radius=10)
+    pygame.draw.rect(screen, GREEN, replay_button, border_radius=10)
+
+    # **Render Button Text**
+    menu_text = font_small.render("Menu", True, WHITE)
+    replay_text = font_small.render("Replay", True, WHITE)
+    screen.blit(menu_text, (menu_button.x + menu_button.width // 2 - menu_text.get_width() // 2,
+                            menu_button.y + menu_button.height // 2 - menu_text.get_height() // 2))
+    screen.blit(replay_text, (replay_button.x + replay_button.width // 2 - replay_text.get_width() // 2,
+                              replay_button.y + replay_button.height // 2 - replay_text.get_height() // 2))
+
     pygame.display.flip()
 
-    waiting = True
-    while waiting:
+    # **Wait for User Input**
+    while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_m:
-                    waiting = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if menu_button.collidepoint(pos):
                     return "menu"
-                elif event.key == pygame.K_r:
-                    waiting = False
+                elif replay_button.collidepoint(pos):
                     return "replay"
-    # Fallback action
     return "menu"
 
 
