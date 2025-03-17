@@ -880,7 +880,7 @@ def main():
                         best_weights = best_snake.brain.tolist()
 
                     log_and_print(
-                        f"Generation {generation} - Best Score: {best_score}, Length: {best_length}, Time: {elapsed_time}s")
+                        f"Generation {generation+1} - Best Score: {best_score}, Length: {best_length}, Time: {elapsed_time}s")
                     run_generation()
 
                 # **Show Training Summary and Handle Replay**
