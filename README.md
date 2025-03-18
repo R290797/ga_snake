@@ -24,7 +24,6 @@ This project was developed to demonstrate **machine learning in a game-based env
 3. [Controls](#controls)  
 4. [AI Training Guide](#ai-training-guide)  
 5. [Features](#features)  
-6. [File Structure](#file-structure)  
 7. [Future Improvements](#future-improvements)  
 8. [License](#license)  
 
@@ -101,20 +100,3 @@ Once the dependencies are installed, you can run the game by executing the Snake
 ✅ **Persistent Leaderboard Across Game Sessions** 📊  
 
 ---
-
-## 📌 Leaderboard
-
-- **Tracks AI training results** (number of snakes, generations, best snake length).  
-- **Stores results even if the game is restarted.**  
-- **Accessible from the main menu**.  
-
----
-
-## 📌 File Structure
-/snake_ai/
-│── Menu.py                  # Main menu logic
-│── Manual_gameplay.py        # Manual snake gameplay
-│── Snake_v11.5.py            # AI-powered snake game
-│── requirements.txt          # Dependencies
-│── README.md                 # Project documentation
-│── leaderboard.txt           # Stores AI training results
