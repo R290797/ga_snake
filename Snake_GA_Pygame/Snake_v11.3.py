@@ -573,17 +573,15 @@ def get_training_parameters():
     screen.fill(BACKGROUND_GRAY)
     font_large = pygame.font.SysFont(None, 50)
     font_small = pygame.font.SysFont(None, 30)
+    font_table_small = pygame.font.SysFont(None, 24)
 
     # **Prompt User**
     title_text = font_large.render("AI Training Setup", True, BLACK)
-    screen.blit(title_text, (WIDTH // 2 -
-                title_text.get_width() // 2, HEIGHT // 4))
+    screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, HEIGHT // 4))
 
-# **Adjusted Input Box Positions**
+    # **Adjusted Input Box Positions**
     input_boxes = {
-        # Move down slightly
         "snakes_per_gen": pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 40, 200, 40),
-        # More spacing from first box
         "num_generations": pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 40, 200, 40),
     }
 
@@ -593,11 +591,9 @@ def get_training_parameters():
     # **Submit Button**
     submit_button = pygame.Rect(WIDTH // 2 - 50, HEIGHT // 2 + 100, 100, 40)  # Move it slightly lower
 
-
     while True:
         screen.fill(BACKGROUND_GRAY)
-        screen.blit(title_text, (WIDTH // 2 -
-                    title_text.get_width() // 2, HEIGHT // 4))
+        screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, HEIGHT // 4))
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -609,7 +605,6 @@ def get_training_parameters():
                 for key, box in input_boxes.items():
                     if box.collidepoint(event.pos):
                         active_box = key
-                # If submit button clicked
                 if submit_button.collidepoint(event.pos):
                     if input_values["snakes_per_gen"].isdigit() and input_values["num_generations"].isdigit():
                         return int(input_values["snakes_per_gen"]), int(input_values["num_generations"])
@@ -619,7 +614,6 @@ def get_training_parameters():
                 if active_box:
                     if event.key == pygame.K_BACKSPACE:
                         input_values[active_box] = input_values[active_box][:-1]
-                    # Only allow numbers
                     elif event.key in range(pygame.K_0, pygame.K_9 + 1):
                         input_values[active_box] += event.unicode
 
@@ -630,12 +624,11 @@ def get_training_parameters():
             screen.blit(text_surface, (box.x + 10, box.y + 10))
 
         # **Render Labels Centered Above Input Boxes**
-        label_x_offset = input_boxes["snakes_per_gen"].width // 2  # Dynamically center labels
+        label_x_offset = input_boxes["snakes_per_gen"].width // 2
         screen.blit(font_small.render("# of Snakes:", True, BLACK),
                     (input_boxes["snakes_per_gen"].x + label_x_offset - 50, input_boxes["snakes_per_gen"].y - 35))
         screen.blit(font_small.render("# of Generations:", True, BLACK),
                     (input_boxes["num_generations"].x + label_x_offset - 80, input_boxes["num_generations"].y - 35))
-
 
         # **Render Submit Button**
         pygame.draw.rect(screen, GREEN, submit_button, border_radius=10)
@@ -643,9 +636,34 @@ def get_training_parameters():
         screen.blit(submit_text, (submit_button.x + submit_button.width // 2 - submit_text.get_width() // 2,
                                   submit_button.y + submit_button.height // 2 - submit_text.get_height() // 2))
 
-        # Informational Note Below Start Button
-        note_text = font_small.render("Note:+20 Snakes & + 10 Generations for Optimal AI Learning", True, BLACK)
-        screen.blit(note_text, (WIDTH // 2 - note_text.get_width() // 2, submit_button.y + 50))  # Position it below the button
+        # **Training Recommendations Table**
+        table_start_y = submit_button.y + 60  # Position the table below the Start button
+        col_widths = [180, 120, 120, 220]  # Define column widths for spacing
+
+        # Column Headers
+        headers = ["Training Type", "# Snakes", "# Gens", "Best Use Case"]
+        for i, header in enumerate(headers):
+            header_text = font_small.render(header, True, BROWN)
+            screen.blit(header_text, (WIDTH // 2 - 275 + sum(col_widths[:i]), table_start_y))
+
+        # Training Data
+        training_recommendations = [
+            ("Quick Testing", "10-15", "5-10", "Test behavior changes"),
+            ("Balanced Learning", "20-30", "15-25", "Good learning vs. performance"),
+            ("Deep Optimization", "40-50", "30-50", "Best for AI mastery")
+        ]
+
+        # Render Table Rows
+        for row, (name, snakes, gens, desc) in enumerate(training_recommendations):
+            name_text = font_table_small.render(name, True, BLACK)
+            snakes_text = font_table_small.render(snakes, True, BLACK)
+            gens_text = font_table_small.render(gens, True, BLACK)
+            desc_text = font_table_small.render(desc, True, BLACK)
+
+            screen.blit(name_text, (WIDTH // 2 - 275, table_start_y + (row + 1) * 30))
+            screen.blit(snakes_text, (WIDTH // 2 - 100, table_start_y + (row + 1) * 30))
+            screen.blit(gens_text, (WIDTH // 2 + 20, table_start_y + (row + 1) * 30))
+            screen.blit(desc_text, (WIDTH // 2 + 100, table_start_y + (row + 1) * 30))
 
         pygame.display.flip()
 
