@@ -5,7 +5,6 @@ This project is a **genetic algorithm-based Snake AI** that allows:
 - **Manual Play** 🕹️ (Control the snake yourself)
 - **AI Training Mode** 🤖 (Train an AI to optimize survival & food collection)
 - **Pre-Trained AI Mode** 🧠 (Use pre-trained models with optimized strategies)
-- **Persistent Leaderboard** 🏆 (Tracks and saves AI training results)
 
 The game leverages **`pygame`** for rendering, **`numpy`** for AI calculations, and **a genetic algorithm** for evolving AI behavior.
 
