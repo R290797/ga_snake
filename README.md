@@ -94,9 +94,7 @@ Once the dependencies are installed, you can run the game by executing the Snake
 ## 📌 Features
 
 ✅ **AI Training Using Genetic Algorithms** 🧬  
-✅ **Hover Effects in Menus** 🎨  
 ✅ **Adaptive Mutation in AI Training** 🤖  
 ✅ **Optimized AI Models for Different Strategies** 🏆  
-✅ **Persistent Leaderboard Across Game Sessions** 📊  
 
 ---
