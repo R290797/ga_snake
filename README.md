@@ -1,4 +1,4 @@
-# 🐍 Snake AI - Version 11.5
+# 🐍 Snake Gen - Version 11.5
 
 ## Overview
 This project is a **genetic algorithm-based Snake AI** that allows:
@@ -53,7 +53,7 @@ This project was developed to demonstrate **machine learning in a game-based env
 ## **📌 Installation**
 ### 1️⃣ **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/snake_ai.git
+   git clone [https://github.com/yourusername/snake_ai.git](https://github.com/R290797/ga_snake)
    cd snake_ai
 ```
 
