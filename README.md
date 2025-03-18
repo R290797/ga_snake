@@ -46,6 +46,7 @@ This project was developed to demonstrate **machine learning in a game-based env
   - **Strategist:** Balances food-seeking & survival.
   - **Explorer:** Explores more before committing.
   - **Risk-Taker:** Moves quickly but takes high risks.
+  - **AI-Mastery:** Advanced AI with optimized weights.
 - **Watch how different strategies perform!**
 
 ---
