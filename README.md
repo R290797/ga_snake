@@ -35,7 +35,7 @@ This project was developed to demonstrate **machine learning in a game-based env
 - **Goal:** Survive as long as possible!
   
 <div align="center">
-  <img src="Assets/snake-manual-GIF.gif" alt="Manual play GIF" width="400" height="auto">
+  <img src="Assets/snake-manual-GIF.gif" alt="Manual play GIF" width="auto" height="auto">
 </div>
 
 
