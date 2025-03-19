@@ -48,6 +48,10 @@ This project was developed to demonstrate **machine learning in a game-based env
   - **AI-Mastery:** Advanced AI with optimized weights.
 - **Watch how different strategies perform!**
 
+  <div align="center">
+  <img src="Assets/pre-trained-ai-mastery-gif" alt="Pre-trained GIF">
+</div>
+
 ---
 
 ## **📌 Installation**
