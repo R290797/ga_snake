@@ -39,6 +39,10 @@ This project was developed to demonstrate **machine learning in a game-based env
 - Users **set the number of snakes & generations** before training.
 - **Goal:** AI learns to optimize food collection and survival.
 
+<div align="center">
+  <img src="Assets/train-ai.gif" alt="Train AI GIF" width="400" height="auto">
+</div>
+
 ### 3️⃣ Pre-Trained AI Mode
 - Select from **pre-trained AI models** with **different strategies**:
   - **Hunter:** Aggressively moves towards food.
