@@ -33,9 +33,9 @@ This project was developed to demonstrate **machine learning in a game-based env
 - **Control the snake** using the **arrow keys**.
 - **Eat food** to grow **without hitting walls or yourself**.
 - **Goal:** Survive as long as possible!
-<div align="center">
-  <img src="Assets/ai-train.gif" alt="Train AI GIF" width="400" height="auto">
-</div>
+  
+
+
 
 ### 2️⃣ AI Training Mode
 - **Trains an AI** using a **genetic algorithm** 🧬.
@@ -43,7 +43,7 @@ This project was developed to demonstrate **machine learning in a game-based env
 - **Goal:** AI learns to optimize food collection and survival.
 
 <div align="center">
-  <img src="C:\Users\Ahmed Nour\Downloads\snake-manual-GIF.gif" alt="Manual play GIF" width="400" height="auto">
+  <img src="Assets/ai-train.gif" alt="Train AI GIF" width="400" height="auto">
 </div>
 
 ### 3️⃣ Pre-Trained AI Mode
