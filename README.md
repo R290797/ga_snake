@@ -40,7 +40,7 @@ This project was developed to demonstrate **machine learning in a game-based env
 - **Goal:** AI learns to optimize food collection and survival.
 
 <div align="center">
-  <img src="Assets/train-ai.gif" alt="Train AI GIF" width="400" height="auto">
+  <img src="Assets/ai-train.gif" alt="Train AI GIF" width="400" height="auto">
 </div>
 
 ### 3️⃣ Pre-Trained AI Mode
