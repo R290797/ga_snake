@@ -1,0 +1,60 @@
+Generation 1 - Best Score: 0, Length: 0, Time: 0.0s
+==================================================
+ Generation 1 Summary 
+==================================================
+ Best Fitness Score: 15291167.21
+ Average Fitness Score: 2649020.82
+ Best Length Achieved: 33
+ Average Length of Snakes: 6.17
+--------------------------------------------------
+ Inherited Weights (Brain Parameters)
+  - Food Bonus Weight: 0.175
+  - Toward Food Weight: 0.404
+  - Away Food Penalty: 0.558
+  - Loop Penalty: -0.285
+  - Survival Bonus: 0.192
+  - Wall Penalty: 0.596
+  - Exploration Bonus: -0.007
+  - Momentum Bonus: 0.140
+  - Dead-End Penalty: 0.044
+==================================================
+Generation 2 - Best Score: 0, Length: 0, Time: 18.45s
+==================================================
+ Generation 2 Summary 
+==================================================
+ Best Fitness Score: 49834982.52
+ Average Fitness Score: 8092695.10
+ Best Length Achieved: 47
+ Average Length of Snakes: 14.17
+--------------------------------------------------
+ Inherited Weights (Brain Parameters)
+  - Food Bonus Weight: 0.310
+  - Toward Food Weight: 0.241
+  - Away Food Penalty: 0.094
+  - Loop Penalty: -0.025
+  - Survival Bonus: 0.608
+  - Wall Penalty: 0.028
+  - Exploration Bonus: 0.096
+  - Momentum Bonus: -0.081
+  - Dead-End Penalty: -0.317
+==================================================
+Generation 3 - Best Score: 0, Length: 0, Time: 41.62s
+==================================================
+ Generation 3 Summary 
+==================================================
+ Best Fitness Score: 216168834.42
+ Average Fitness Score: 27086894.13
+ Best Length Achieved: 75
+ Average Length of Snakes: 20.33
+--------------------------------------------------
+ Inherited Weights (Brain Parameters)
+  - Food Bonus Weight: 0.388
+  - Toward Food Weight: 0.210
+  - Away Food Penalty: 0.020
+  - Loop Penalty: 0.010
+  - Survival Bonus: 0.659
+  - Wall Penalty: -0.008
+  - Exploration Bonus: -0.094
+  - Momentum Bonus: -0.135
+  - Dead-End Penalty: -0.322
+==================================================
