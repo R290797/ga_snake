@@ -1,1 +1,0 @@
-UP, DOWN, LEFT, RIGHT
