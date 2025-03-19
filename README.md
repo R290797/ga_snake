@@ -34,6 +34,9 @@ This project was developed to demonstrate **machine learning in a game-based env
 - **Eat food** to grow **without hitting walls or yourself**.
 - **Goal:** Survive as long as possible!
   
+<div align="center">
+  <img src="Assets/snake-manual-GIF.gif" alt="Manual play GIF" width="400" height="auto">
+</div>
 
 
 
