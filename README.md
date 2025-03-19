@@ -149,7 +149,9 @@ It's **visual** (in an ASCII kind of way), it's **interactive**, and it’s **fu
 - Curses  
 - Pandas (for future graphing goodness)  
 - And a deep love for **algorithms** & **retro games**
-# 🐍 Snake Gen - Version 11.5
+  
+
+# 🐍 Snake Gen - (Pygame Edition)
 
 ## Overview
 This project is a **genetic algorithm-based Snake AI** that allows:
