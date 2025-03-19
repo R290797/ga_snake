@@ -265,3 +265,7 @@ Once the dependencies are installed, you can run the game by executing the Snake
 ✅ **Optimized AI Models for Different Strategies** 🏆  
 
 ---
+
+## 📝 License
+Free to learn, free to play, free to fork.  
+Go forth and evolve!
