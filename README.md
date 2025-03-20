@@ -16,6 +16,7 @@ Whether you’re here to **watch evolution in action**, **train a snake army**, 
   (Windows folks—see the **Compatibility Notes** below!)
 - Terminal with enough **real estate**  
   (Big screen = happy snake)
+- Ensure the saves repo is in the root folder, otherwise the location cannot be found. Can adjust this if you want to use another folder that prefer!
 
 ### 📦 Install (Optional but Helpful)
 If you want to make graphs later:
