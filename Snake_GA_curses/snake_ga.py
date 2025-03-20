@@ -1,24 +1,3 @@
-# NOTES TO DISCUSS:
-# Arbirtrary values for scores, make it hard to define hyperparameters
-# Bias towards directions coming first in the array, since max index that appears first ist taken
-# curses-windows for windows
-
-# NOTE: 3 different scores - Score (Points), Eval Score (For Direction identifaction), Fitness Score 
-# DO NOT CONFUSE THESE...
-
-# Fail Conditions --> very Interesting
-
-
-#TODO - Saving to CSV, Loading in Playground - Continue Training (Adding Meta Data like total Generations trained and full gen progress...)
-#TODO - Ensure Inputs are cheked (min Cadidates = 4 - max candidates (for screen viewing later...)) 
-#TODO - Check if all Metrics are being reset correctly after restarting training (Info, Fitness Progress... etc.)
-#TODO - Generation Metrics, Tracking Performance (See end of training)
-#TODO - Show Training Metrics (Save as image to folder)
-#TODO - Continue Training from CSV
-#TODO - If Time, fast mode... (Multiple Trainings at once...)
-#TODO - Add mutation Factor as input
-
-
 import curses
 import random
 import time
