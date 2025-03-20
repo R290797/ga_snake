@@ -1,4 +1,6 @@
-# 🐍 Snake GA — Genetic Algorithm Playground (Curses Edition)
+# 🐍 Snake GA 
+This project comes in two flavors of evolutionary awesomeness: the Curses Edition, where snakes evolve in glorious ASCII right inside your terminal (because who needs graphics when you’ve got imagination?), and the Pygame Edition, where snakes slither around in a fancy graphical world powered by pygame and numpy. Both versions use a Genetic Algorithm to train your digital reptile army, but whether you prefer old-school terminal charm or modern visual flair, there’s a snake here with your name on it. Pick your poison—text or pixels!
+# 1-🐍 Snake GA — Genetic Algorithm Playground (Curses Edition)
 **Snake GA** is an **ASCII-powered**, **terminal-based** project where a **Genetic Algorithm (GA)** teaches a digital snake how to master its tiny universe.  
 It’s minimalistic. It’s educational. It’s addictive.  
 Oh, and did we mention it runs right in your terminal? (No fancy graphics. Just raw algorithmic evolution.)
@@ -152,7 +154,7 @@ It's **visual** (in an ASCII kind of way), it's **interactive**, and it’s **fu
 - And a deep love for **algorithms** & **retro games**
   
 
-# 🐍 Snake Gen - (Pygame Edition)
+# 2-🐍 Snake GA - (Pygame Edition)
 
 ## Overview
 This project is a **genetic algorithm-based Snake AI** that allows:
