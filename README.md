@@ -116,7 +116,7 @@ Once the dependencies are installed, you can run the game by executing the Snake
 
 ---
 
-# 2-🐍 Snake GA — Genetic Algorithm Playground (Curses Edition)
+# 2-🐍 Snake GA — (Curses Edition)
 **Snake GA** is an **ASCII-powered**, **terminal-based** project where a **Genetic Algorithm (GA)** teaches a digital snake how to master its tiny universe.  
 It’s minimalistic. It’s educational. It’s addictive.  
 Oh, and did we mention it runs right in your terminal? (No fancy graphics. Just raw algorithmic evolution.)
