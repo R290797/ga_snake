@@ -962,6 +962,8 @@ def file_selection_menu(stdscr, folder="saved_models"):
         # Get key press
         key = stdscr.getch()
 
+        stdscr.nodelay(0)
+
         if key == ord("d") and selected_index < len(files) - 1:  # Move right
             selected_index += 1
 
@@ -970,13 +972,9 @@ def file_selection_menu(stdscr, folder="saved_models"):
 
         elif key in [curses.KEY_ENTER, 10, 13]:  # Enter key to select
 
-            stdscr.nodelay(1)
-
             # Get Extra Generations
             num_generations = get_numeric_input(stdscr, "Enter number of generations to train for: ", 9, 3)
             GENERATIONS = num_generations + generation
-
-            stdscr.nodelay(0)
 
             return files[selected_index]
         
@@ -1084,6 +1082,8 @@ def run_game(stdscr):
 
         # Training Loop
         if game_state == "Training":
+
+            stdscr.nodelay(1)
 
             # Initialize Meta Data Trscking
             if CURRENT_GENERATION == 0:
